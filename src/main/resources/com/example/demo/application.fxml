@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="10" xmlns:fx="http://javafx.com/fxml" fx:controller="controller.AppController">
+    <Label text="Spotify-Like App" style="-fx-font-size: 24px;" />
+    <TextField fx:id="searchField" promptText="Search for songs..." onAction="#searchSong" />
+    <TableView fx:id="songTable">
+        <columns>
+            <TableColumn fx:id="titleColumn" text="Title" />
+            <TableColumn fx:id="artistColumn" text="Artist" />
+        </columns>
+    </TableView>
+    <HBox spacing="10">
+        <Button fx:id="playButton" text="Play" onAction="#playSong" />
+        <Button fx:id="pauseButton" text="Pause" onAction="#pauseSong" />
+        <Button fx:id="stopButton" text="Stop" onAction="#stopSong" />
+    </HBox>
+</VBox>
