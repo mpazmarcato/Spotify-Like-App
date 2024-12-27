@@ -1,16 +1,33 @@
 package model;
 
+import java.io.File;
+import java.util.Date;
+
 public class Song {
+    private int songID;
     private String title;
+    private String genre;
     private String artist;
     private String album;
-    private String path;
+    private int duration;
+    private Date releaseYear;
 
-    public Song(String title, String artist, String album, String path) {
+    public Song(int songID, String title, String genre, String artist, String album, int duration, Date releaseYear) {
+        this.songID = songID;
         this.title = title;
+        this.genre = genre;
         this.artist = artist;
         this.album = album;
-        this.path = path;
+        this.duration = duration;
+        this.releaseYear = releaseYear;
+    }
+
+    public int getSongID() {
+        return songID;
+    }
+
+    public void setSongID(int songID) {
+        this.songID = songID;
     }
 
     public String getTitle() {
@@ -19,6 +36,14 @@ public class Song {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
     }
 
     public String getArtist() {
@@ -37,11 +62,30 @@ public class Song {
         this.album = album;
     }
 
-    public String getPath() {
-        return path;
+    public int getDuration() {
+        return duration;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public Date getReleaseYear() {
+        return releaseYear;
+    }
+
+    public void setReleaseYear(Date releaseYear) {
+        this.releaseYear = releaseYear;
+    }
+
+    public String getFilePath(Song song) {
+        String basePath = "src/main/resources/";
+        String genre = song.getGenre();
+        String artist = song.getArtist();
+
+        genre = genre.replaceAll("[^a-zA-Z0-9]", "");
+        artist = artist.replaceAll("[^a-zA-Z0-9]", "");
+
+        return basePath + "/" + genre + "/" + artist;
     }
 }
