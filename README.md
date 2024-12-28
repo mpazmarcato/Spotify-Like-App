@@ -1,3 +1,4 @@
+```bash
 SpotifyLikeApp/
 ├── src/
 │   ├── main/
@@ -15,4 +16,4 @@ SpotifyLikeApp/
 │   ├── init.sql                 # Script para criação e inicialização do banco de dados
 │   └── data.sql                 # Script para dados de exemplo
 ├── README.md                    # Documentação do projeto
-
+```
