@@ -1,33 +1,37 @@
 package model;
 
-import java.io.File;
 import java.util.Date;
 
+import enums.SongType;
+
 public class Song {
-    private int songID;
+    private int id;
     private String title;
     private String genre;
     private String artist;
     private String album;
     private int duration;
     private Date releaseYear;
+    private SongType type;
 
-    public Song(int songID, String title, String genre, String artist, String album, int duration, Date releaseYear) {
-        this.songID = songID;
+    public Song(int id, String title, String genre, String artist, String album, int duration, Date releaseYear,
+            SongType type) {
+        this.id = id;
         this.title = title;
         this.genre = genre;
         this.artist = artist;
         this.album = album;
         this.duration = duration;
         this.releaseYear = releaseYear;
+        this.type = type;
     }
 
-    public int getSongID() {
-        return songID;
+    public int getId() {
+        return id;
     }
 
-    public void setSongID(int songID) {
-        this.songID = songID;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getTitle() {
@@ -76,6 +80,14 @@ public class Song {
 
     public void setReleaseYear(Date releaseYear) {
         this.releaseYear = releaseYear;
+    }
+
+    public SongType getType() {
+        return type;
+    }
+
+    public void setType(SongType type) {
+        this.type = type;
     }
 
     public String getFilePath(Song song) {

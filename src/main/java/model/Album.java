@@ -15,13 +15,4 @@ public class Album extends Content {
         return songs;
     }
 
-    public void addSong(Song song) {
-        songs.add(song);
-        setDuration(getDuration() + song.getDuration());
-    }
-
-    public void removeSong(Song song) {
-        songs.remove(song);
-        setDuration(getDuration() - song.getDuration());
-    }
 }

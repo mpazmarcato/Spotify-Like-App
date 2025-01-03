@@ -1,6 +1,5 @@
 package model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Playlist extends Content {
@@ -15,13 +14,4 @@ public class Playlist extends Content {
         return songs;
     }
 
-    public void addSong(Song song) {
-        songs.add(song);
-        setDuration(getDuration() + song.getDuration());
-    }
-
-    public void removeSong(Song song) {
-        songs.remove(song);
-        setDuration(getDuration() - song.getDuration());
-    }
 }
