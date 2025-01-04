@@ -15,4 +15,8 @@ module com.example.demo {
     opens controller to javafx.fxml; // Allow reflection for FXML
     exports controller;
     exports com.example.demo; // Export the package containing MainApp
+
+    exports services;
+    exports repositories;
+    exports model;
 }
