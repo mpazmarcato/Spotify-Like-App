@@ -6,7 +6,9 @@ SpotifyLikeApp/
 │   │   │   ├── controller/      # Controladores da interface JavaFX
 │   │   │   ├── model/           # Classes modelo para usuários, músicas, playlists
 │   │   │   ├── utils/           # Classes auxiliares (e.g., conexão com o banco)
-│   │   │   ├── media/           # Arquivos de música ou mídia 
+│   │   │   ├── media/           # Arquivos de música ou mídia
+│   │   │   ├── servicies/       # Serivces
+│   │   │   ├── repositories/    # repositories
 │   │   │   └── MainApp.java     # Classe principal
 │   │   ├── resources/
 │   │   │   ├── fxml/            # Arquivos FXML para layouts JavaFX
