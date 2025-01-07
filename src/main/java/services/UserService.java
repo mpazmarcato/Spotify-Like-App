@@ -22,15 +22,15 @@ public class UserService {
         return userRepository.findUserById(id);
     }
 
-    public List<User> listUsers() {
-        return userRepository.listUsers();
+    public List<User> findAllUsers() {
+        return userRepository.findAllUsers();
     }
 
-    public Optional<User> findUserByUserName(String userName) {
-        return userRepository.findUserByUsername(userName);
-    }
+//    public Optional<User> findUserByUserName(String userName) {
+//        return userRepository.findUserByUsername(userName);
+//    }
 
-    public Optional<User> deleteUserById(int id) {
-        return userRepository.deleteUserById(id);
+    public void deleteUserById(int id) {
+         userRepository.deleteUserById(id);
     }
 }

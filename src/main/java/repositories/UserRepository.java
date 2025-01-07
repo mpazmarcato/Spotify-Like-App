@@ -1,73 +1,89 @@
 package repositories;
 
-import java.io.*;
+import util.HibernateUtil;
+import model.User;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Optional;
 
-import model.User;
-import DAO.BancoDAO;
-
 public class UserRepository {
-    private BancoDAO banco;
-    private static final String FILE_NAME = "user.dat";
 
-    public UserRepository() {
-        banco = BancoDAO.getIntance();
-        loadUsers();
-    }
-
-    @SuppressWarnings("unchecked")
-    private void loadUsers() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
-            List<User> users = (List<User>) ois.readObject();
-            banco.getArrayUsers().clear();
-            banco.getArrayUsers().addAll(users);
-        } catch (FileNotFoundException e) {
-            System.out.println("Arquivo não encontrado, inicializando lista de usuários vazia.");
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void saveUsersFile() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
-            oos.writeObject(banco.getArrayUsers());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    private static final Logger logger = LoggerFactory.getLogger(UserRepository.class);
 
     public Optional<User> saveUser(User user) {
-        if (banco.getArrayUsers().stream().anyMatch(u -> u.getUserID() == user.getUserID())) {
-            System.out.println("Usuário com ID já existente.");
-            return Optional.empty();
-        }
-        try {
-            banco.getArrayUsers().add(user);
-            saveUsersFile();
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSession()) {
+            transaction = session.beginTransaction();
+            session.persist(user);
+            transaction.commit();
             return Optional.of(user);
         } catch (Exception e) {
-            e.printStackTrace();
+            if (transaction != null) transaction.rollback();
+            logger.error("Error saving user", e);
             return Optional.empty();
         }
-    }
-
-    public List<User> listUsers() {
-        return banco.getArrayUsers();
     }
 
     public Optional<User> findUserById(int id) {
-        return banco.getArrayUsers().stream().filter(user -> user.getUserID() == id).findFirst();
+        try (Session session = HibernateUtil.getSession()) {
+            User user = session.get(User.class, id);
+            return Optional.ofNullable(user);
+        } catch (Exception e) {
+            logger.error("Error getting user by ID", e);
+            return Optional.empty();
+        }
     }
 
-    public Optional<User> findUserByUsername(String username) {
-        return banco.getArrayUsers().stream().filter(user -> user.getUsername().equals(username)).findFirst();
+    public List<User> findAllUsers() {
+        try (Session session = HibernateUtil.getSession()) {
+            return session.createQuery("SELECT u FROM com.example.demo.model.User u", User.class).list();
+        } catch (Exception e) {
+            logger.error("Error getting all users", e);
+            return null;
+        }
     }
 
-    public Optional<User> deleteUserById(int id) {
-        Optional<User> user = findUserById(id);
-        user.ifPresent(value -> banco.getArrayUsers().remove(value));
-        saveUsersFile();
-        return user;
+//    public Optional<User> findUserByUsername(String username) {
+//        try (Session session = HibernateUtil.getSession()) {
+//            return session.createQuery("SELECT u FROM com.example.demo.model.User u WHERE u.username = :username", User.class) //recebendo erro aqui
+//                    .setParameter("username", username)
+//                    .uniqueResultOptional();
+//        } catch (Exception e) {
+//            logger.error("Error getting user by username", e);
+//            return Optional.empty();
+//        }
+//    }
+
+    public Optional<User> updateUser(User user) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSession()) {
+            transaction = session.beginTransaction();
+            session.merge(user);
+            transaction.commit();
+            return Optional.of(user);
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            logger.error("Error updating user", e);
+            return Optional.empty();
+        }
+    }
+
+    public void deleteUserById(int id) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSession()) {
+            transaction = session.beginTransaction();
+            User user = session.get(User.class, id); // Busca o usuário pelo ID
+            if (user != null) {
+                session.remove(user);
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) transaction.rollback();
+            logger.error("Error deleting user", e);
+        }
     }
 }
