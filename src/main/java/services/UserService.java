@@ -22,13 +22,13 @@ public class UserService {
         return userRepository.findUserById(id);
     }
 
+    public Optional<User> updateUser(User user) {
+        return userRepository.updateUser(user);
+    }
+
     public List<User> findAllUsers() {
         return userRepository.findAllUsers();
     }
-
-//    public Optional<User> findUserByUserName(String userName) {
-//        return userRepository.findUserByUsername(userName);
-//    }
 
     public void deleteUserById(int id) {
          userRepository.deleteUserById(id);

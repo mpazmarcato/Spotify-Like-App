@@ -40,23 +40,23 @@ public class UserRepository {
 
     public List<User> findAllUsers() {
         try (Session session = HibernateUtil.getSession()) {
-            return session.createQuery("SELECT u FROM com.example.demo.model.User u", User.class).list();
+            return session.createQuery("SELECT u FROM model.User u", User.class).list();
         } catch (Exception e) {
             logger.error("Error getting all users", e);
             return null;
         }
     }
 
-//    public Optional<User> findUserByUsername(String username) {
-//        try (Session session = HibernateUtil.getSession()) {
-//            return session.createQuery("SELECT u FROM com.example.demo.model.User u WHERE u.username = :username", User.class) //recebendo erro aqui
-//                    .setParameter("username", username)
-//                    .uniqueResultOptional();
-//        } catch (Exception e) {
-//            logger.error("Error getting user by username", e);
-//            return Optional.empty();
-//        }
-//    }
+    public Optional<User> findUserByUsername(String username) {
+        try (Session session = HibernateUtil.getSession()) {
+            return session.createQuery("SELECT u FROM model.User u WHERE u.username = :username", User.class)
+                    .setParameter("username", username)
+                    .uniqueResultOptional();
+        } catch (Exception e) {
+            logger.error("Error getting user by username", e);
+            return Optional.empty();
+        }
+    }
 
     public Optional<User> updateUser(User user) {
         Transaction transaction = null;

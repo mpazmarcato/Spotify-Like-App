@@ -26,9 +26,9 @@ public class UserController {
         return userService.findAllUsers();
     }
 
-//    public Optional<User> findUserByUserName(String userName) {
-//        return userService.findUserByUserName(userName);
-//    }
+    public Optional<User> updateUser(User user) {
+        return userService.updateUser(user);
+    }
 
     public void deleteUserById(int id) {
         userService.deleteUserById(id);
