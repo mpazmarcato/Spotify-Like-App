@@ -12,7 +12,7 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int userID;
+    private Integer userID;
     private String username;
     private String password;
     private String email;
@@ -31,18 +31,18 @@ public class User {
 
     public User() {}
 
-    public User(int userID, String username, String password, String email) {
+    public User(Integer userID, String username, String password, String email) {
         this.userID = userID;
         this.username = username;
         this.password = password;
         this.email = email;
     }
 
-    public int getUserID() {
+    public Integer getUserID() {
         return userID;
     }
 
-    public void setUserID(int userID) {
+    public void setUserID(Integer userID) {
         this.userID = userID;
     }
 

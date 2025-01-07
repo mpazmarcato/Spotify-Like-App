@@ -22,7 +22,13 @@ public class UserRepository {
             transaction.commit();
             return Optional.of(user);
         } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
+            if (transaction != null && transaction.isActive()) {
+                try {
+                    transaction.rollback();
+                } catch (Exception rollbackEx) {
+                    logger.error("Error during transaction rollback", rollbackEx);
+                }
+            }
             logger.error("Error saving user", e);
             return Optional.empty();
         }
@@ -61,8 +67,13 @@ public class UserRepository {
     public Optional<User> updateUser(User user) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSession()) {
+            User existingUser = session.get(User.class, user.getUserID());
+            if (existingUser == null) {
+                return Optional.empty();
+            }
+
             transaction = session.beginTransaction();
-            session.merge(user);
+            session.merge(existingUser);
             transaction.commit();
             return Optional.of(user);
         } catch (Exception e) {
