@@ -15,20 +15,25 @@ public class LoginController {
     private PasswordField passwordField;
 
     @FXML
-    private void handleLogin() {
+    public void handleLogin() {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        // Aqui você poderia validar o login com a base de dados.
-        if (username.equals("admin") && password.equals("admin")) {
-            // Redirecionar para a tela principal após o login.
-            System.out.println("Login successful");
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert(AlertType.ERROR, "Erro de Login", "Por favor, preencha todos os campos.");
         } else {
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Login Error");
-            alert.setHeaderText("Invalid credentials");
-            alert.setContentText("Please check your username and password.");
-            alert.showAndWait();
+            // lógica para verificar o login
+            if (username.equals("admin") && password.equals("admin")) {
+                showAlert(AlertType.INFORMATION, "Login Bem-Sucedido", "Bem-vindo, " + username + "!");
+            }
         }
+    }
+
+    private void showAlert(AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
