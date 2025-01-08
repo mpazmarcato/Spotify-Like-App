@@ -32,13 +32,11 @@ class UserRepositoryTest {
 
     @AfterEach
     void cleanUp() {
-        // Clean up any test data after each test
         try {
             if (testUser != null && testUser.getUserID() != null) {
                 userRepository.deleteUserById(testUser.getUserID());
             }
         } catch (Exception e) {
-            // Log or handle cleanup errors
             System.err.println("Error during cleanup: " + e.getMessage());
         }
     }
