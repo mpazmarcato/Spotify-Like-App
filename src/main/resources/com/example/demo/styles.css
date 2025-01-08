@@ -1,9 +1,84 @@
+/* Definindo as cores principais */
 .root {
-    -fx-background-color: #1DB954;
+    -fx-background-color: #191414; /* Cor de fundo escura */
+    -fx-text-fill: white;
+    -fx-font-family: 'Segoe UI', sans-serif;
+    -fx-font-size: 14px;
+    -fx-alignment: center;
 }
 
-.button {
+/* Estilo do conteúdo da tela de login */
+.login-container {
+    -fx-background-color: transparent;
+    -fx-padding: 50px;
+    -fx-alignment: center;
+}
+
+/* Estilo do título do login */
+.login-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1db954; /* Verde do Spotify */
+    -fx-alignment: center;
+    -fx-padding: 10px;
+}
+
+/* Estilo dos campos de texto */
+.login-field {
+    -fx-background-color: #333;
+    -fx-text-fill: white;
+    -fx-border-color: #333;
+    -fx-border-radius: 5px;
+    -fx-padding: 10px;
+    -fx-pref-width: 250px; /* Reduzido para um tamanho mais adequado */
+    -fx-pref-height: 40px;  /* Tamanho fixo para altura */
+    -fx-margin-bottom: 10px; /* Espaço entre os campos */
+}
+
+.login-field:focused {
+    -fx-border-color: #1db954; /* Verde do Spotify */
+}
+
+/* Estilo do botão */
+.login-button {
+    -fx-background-color: #1db954; /* Verde do Spotify */
+    -fx-text-fill: white;
+    -fx-border-radius: 30px;
+    -fx-padding: 10px 20px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 250px;
+    -fx-pref-height: 40px;
+    -fx-font-size: 16px;
+}
+
+.login-button:hover {
+    -fx-background-color: #1ed760; /* Cor de destaque */
+}
+
+.register-text {
     -fx-font-size: 14px;
-    -fx-background-color: #1DB954;
+    -fx-text-fill: white;
+    -fx-font-family: 'Arial', sans-serif;
+    -fx-padding: 5px;
+    -fx-alignment: center; /* Centraliza o texto */
+}
+
+/* Botão de cadastrar */
+.register-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1db954; /* Verde do Spotify */
+    -fx-border-color: #1db954;
+    -fx-border-width: 2px;
+    -fx-border-radius: 30px;
+    -fx-padding: 10px 20px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 250px;
+    -fx-pref-height: 40px;
+    -fx-font-size: 16px;
+}
+
+.register-button:hover {
+    -fx-background-color: #1db954; /* Cor de destaque ao passar o mouse */
     -fx-text-fill: white;
 }
+
