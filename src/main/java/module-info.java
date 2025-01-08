@@ -10,13 +10,21 @@ module com.example.demo {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires javafx.media;
+    requires org.hibernate.orm.core;
+    requires org.slf4j;
+    requires jakarta.persistence;
+
+    requires java.naming;
+    requires java.sql;
 
     opens com.example.demo to javafx.fxml;
     opens controller to javafx.fxml; // Allow reflection for FXML
+    opens model to org.hibernate.orm.core;
+
     exports controller;
     exports com.example.demo; // Export the package containing MainApp
-
     exports services;
     exports repositories;
     exports model;
+    exports enums;
 }

@@ -4,15 +4,25 @@ import java.util.Date;
 
 import enums.SongType;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "song")
 public class Song {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String title;
     private String genre;
     private String artist;
     private String album;
     private int duration;
+    @Temporal(TemporalType.DATE)
     private Date releaseYear;
+    @Enumerated(EnumType.STRING)
     private SongType type;
+
+    public Song() {}
 
     public Song(int id, String title, String genre, String artist, String album, int duration, Date releaseYear,
             SongType type) {

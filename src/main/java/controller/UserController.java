@@ -22,15 +22,15 @@ public class UserController {
         return userService.findUserById(id);
     }
 
-    public List<User> listUsers() {
-        return userService.listUsers();
+    public List<User> findAllUsers() {
+        return userService.findAllUsers();
     }
 
-    public Optional<User> findUserByUserName(String userName) {
-        return userService.findUserByUserName(userName);
+    public Optional<User> updateUser(User user) {
+        return userService.updateUser(user);
     }
 
-    public Optional<User> deleteUserById(int id) {
-        return userService.deleteUserById(id);
+    public void deleteUserById(int id) {
+        userService.deleteUserById(id);
     }
 }

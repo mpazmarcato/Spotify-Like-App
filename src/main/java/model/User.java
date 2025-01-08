@@ -1,29 +1,48 @@
 package model;
 
+import enums.UserType;
+
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "users")
 public class User {
-    private int userID;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer userID;
     private String username;
     private String password;
     private String email;
     private String profilePicture;
-    private List<Playlist> playlists;
 
-    public User(int userID, String username, String password, String email) {
+    @ElementCollection(targetClass = UserType.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_types", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    private final List<UserType> usersType = new ArrayList<>(); //pode ser um usuario comum, cantor, administrador
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<Playlist> playlists = new ArrayList<>();
+
+    @OneToMany(mappedBy = "artist", cascade = CascadeType.ALL, orphanRemoval = true)
+    private final List<Album> albums = new ArrayList<>(); //pode ser um usuario que é cantor
+
+    public User() {}
+
+    public User(Integer userID, String username, String password, String email) {
         this.userID = userID;
         this.username = username;
         this.password = password;
         this.email = email;
-        this.playlists = new ArrayList<>();
     }
 
-    public int getUserID() {
+    public Integer getUserID() {
         return userID;
     }
 
-    public void setUserID(int userID) {
+    public void setUserID(Integer userID) {
         this.userID = userID;
     }
 
@@ -63,7 +82,11 @@ public class User {
         return playlists;
     }
 
-    public void setPlaylists(List<Playlist> playlists) {
-        this.playlists = playlists;
+    public List<Album> getAlbums() {
+        return albums;
+    }
+
+    public List<UserType> getUserType() {
+        return usersType;
     }
 }
