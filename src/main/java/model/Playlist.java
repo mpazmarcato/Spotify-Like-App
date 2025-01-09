@@ -16,6 +16,7 @@ public class Playlist extends Content {
     @JoinColumn(name = "user_id")
     private User user;
 
+    public Playlist() {}
 
     public Playlist(int id, String title, int duration, String description, User user) {
         super(id, title, duration, description);
