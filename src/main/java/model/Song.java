@@ -11,12 +11,12 @@ import jakarta.persistence.*;
 public class Song {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String title;
     private String genre;
     private String artist;
     private String album;
-    private int duration;
+    private Integer duration;
     @Temporal(TemporalType.DATE)
     private Date releaseYear;
     @Enumerated(EnumType.STRING)
@@ -24,7 +24,7 @@ public class Song {
 
     public Song() {}
 
-    public Song(int id, String title, String genre, String artist, String album, int duration, Date releaseYear,
+    public Song(Integer id, String title, String genre, String artist, String album, Integer duration, Date releaseYear,
             SongType type) {
         this.id = id;
         this.title = title;
@@ -36,11 +36,11 @@ public class Song {
         this.type = type;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -76,11 +76,11 @@ public class Song {
         this.album = album;
     }
 
-    public int getDuration() {
+    public Integer getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(Integer duration) {
         this.duration = duration;
     }
 
