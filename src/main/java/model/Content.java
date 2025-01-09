@@ -9,27 +9,27 @@ public abstract class Content {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String title;
     @ElementCollection
     private final List<String> contributors = new ArrayList<>();
-    private int duration;
+    private Integer duration;
     private String description;
 
     public Content() {}
 
-    public Content(int id, String title, int duration, String description) {
+    public Content(Integer id, String title, Integer duration, String description) {
         this.id = id;
         this.title = title;
         this.duration = duration;
         this.description = description;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -45,11 +45,11 @@ public abstract class Content {
         return contributors;
     }
 
-    public int getDuration() {
+    public Integer getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(Integer duration) {
         this.duration = duration;
     }
 
