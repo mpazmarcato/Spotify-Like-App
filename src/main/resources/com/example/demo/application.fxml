@@ -1,8 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 
-<VBox spacing="10" alignment="CENTER" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AppController">
-    <ListView fx:id="playlistView" />
-    <Button text="Play Music" onAction="#handlePlayMusic"/>
-</VBox>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AppController" stylesheets="@styles.css">
+
+<!-- Barra de navegação à esquerda -->
+    <left>
+        <VBox spacing="10" styleClass="sidebar">
+            <Button text="Home" styleClass="nav-button"/>
+            <Button text="Buscar" styleClass="nav-button"/>
+            <Button text="Sua Biblioteca" styleClass="nav-button"/>
+            <Button text="Premium" styleClass="nav-button"/>
+            <Button text="Configurações" styleClass="nav-button"/>
+        </VBox>
+    </left>
+
+    <!-- Conteúdo principal (listas de reprodução, recomendações, etc.) -->
+    <center>
+        <VBox spacing="15">
+            <Text text="Recomendações" styleClass="section-title"/>
+            <HBox spacing="10">
+                <ImageView fx:id="playlistImage1" fitHeight="100" fitWidth="100" />
+                <ImageView fx:id="playlistImage2" fitHeight="100" fitWidth="100" />
+                <ImageView fx:id="playlistImage3" fitHeight="100" fitWidth="100" />
+            </HBox>
+            <Text text="Tocando Agora" styleClass="section-title"/>
+            <ListView fx:id="nowPlayingList" />
+        </VBox>
+    </center>
+
+    <!-- Player de música -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER" styleClass="music-player">
+            <Button text="&lt;&lt;"/>
+            <Button text="Play"/>
+            <Button text="&gt;&gt;"/>
+            <Text fx:id="currentSongText" text="Nenhuma música tocando" styleClass="song-text"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
