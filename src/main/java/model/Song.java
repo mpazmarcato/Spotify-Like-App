@@ -1,14 +1,15 @@
 package model;
 
-import java.util.Date;
-
 import enums.SongType;
 
 import jakarta.persistence.*;
+import java.io.File;
+import java.util.Date;
 
 @Entity
 @Table(name = "song")
 public class Song {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -21,11 +22,12 @@ public class Song {
     private Date releaseYear;
     @Enumerated(EnumType.STRING)
     private SongType type;
+    private String fileName;  // Nome do arquivo da música
 
     public Song() {}
 
     public Song(Integer id, String title, String genre, String artist, String album, Integer duration, Date releaseYear,
-            SongType type) {
+                SongType type, String fileName) {
         this.id = id;
         this.title = title;
         this.genre = genre;
@@ -34,6 +36,7 @@ public class Song {
         this.duration = duration;
         this.releaseYear = releaseYear;
         this.type = type;
+        this.fileName = fileName;  // Atribuindo o nome do arquivo da música
     }
 
     public Integer getId() {
@@ -100,14 +103,21 @@ public class Song {
         this.type = type;
     }
 
-    public String getFilePath(Song song) {
-        String basePath = "src/main/resources/";
-        String genre = song.getGenre();
-        String artist = song.getArtist();
+    public String getFileName() {
+        return fileName;
+    }
 
-        genre = genre.replaceAll("[^a-zA-Z0-9]", "");
-        artist = artist.replaceAll("[^a-zA-Z0-9]", "");
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
 
-        return basePath + "/" + genre + "/" + artist;
+    /**
+     * Retorna o caminho completo da música.
+     *
+     * @return Caminho completo da música dentro da pasta de mídia.
+     */
+    public String getPath() {
+        String mediaFolderPath = "src/java/main/media";  // Caminho da pasta de mídia (ajuste conforme necessário)
+        return mediaFolderPath + File.separator + genre + File.separator + fileName;
     }
 }

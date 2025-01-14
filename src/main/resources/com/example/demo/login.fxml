@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.TextField?>
@@ -8,26 +14,32 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.geometry.Pos?>
 
-<StackPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
-
-    <!-- Tela de Login -->
-    <VBox fx:id="loginPane" alignment="CENTER" spacing="20" styleClass="login-container" visible="true">
-        <Text text="Spotify Login" styleClass="login-title" />
-        <TextField fx:id="usernameField" promptText="Usuário" styleClass="login-field" />
-        <PasswordField fx:id="passwordField" promptText="Senha" styleClass="login-field" />
-        <Button fx:id="loginButton" text="Entrar" onAction="#handleLogin" styleClass="login-button" />
-        <Text text="Não possui conta ainda?" styleClass="register-text" />
-        <Button fx:id="registerButton" text="Cadastrar" onAction="#handleRegisterSwitch" styleClass="register-button" />
-    </VBox>
-
-    <!-- Tela de Cadastro -->
-    <VBox fx:id="registerPane" alignment="CENTER" spacing="20" styleClass="register-container" visible="false">
-        <Text text="Cadastro de Conta" styleClass="register-title" />
-        <TextField fx:id="registerUsernameField" promptText="Usuário" styleClass="register-field" />
-        <TextField fx:id="emailField" promptText="E-mail" styleClass="register-field" />
-        <PasswordField fx:id="registerPasswordField" promptText="Senha" styleClass="register-field" />
-        <Button fx:id="saveButton" text="Salvar" onAction="#handleRegisterSave" styleClass="register-button" />
-        <Button fx:id="backButton" text="Voltar" onAction="#handleBackToLogin" styleClass="back-button" />
-    </VBox>
+<StackPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="controller.LoginController">
+   <children>
+   
+       <!-- Tela de Login -->
+       <VBox fx:id="loginPane" alignment="CENTER" spacing="20" styleClass="login-container" visible="true">
+      <children>
+              <Text styleClass="login-title" text="Spotify Login" />
+              <TextField fx:id="usernameField" promptText="Usuário" styleClass="login-field" />
+              <PasswordField fx:id="passwordField" promptText="Senha" styleClass="login-field" />
+              <Button fx:id="loginButton" onAction="#handleLogin" styleClass="login-button" text="Entrar" />
+              <Text styleClass="register-text" text="Não possui conta ainda?" />
+              <Button fx:id="registerButton" onAction="#handleRegisterSwitch" styleClass="register-button" text="Cadastrar" />
+      </children>
+       </VBox>
+   
+       <!-- Tela de Cadastro -->
+       <VBox fx:id="registerPane" alignment="CENTER" spacing="20" styleClass="register-container" visible="false">
+      <children>
+              <Text styleClass="register-title" text="Cadastro de Conta" />
+              <TextField fx:id="registerUsernameField" promptText="Usuário" styleClass="register-field" />
+              <TextField fx:id="emailField" promptText="E-mail" styleClass="register-field" />
+              <PasswordField fx:id="registerPasswordField" promptText="Senha" styleClass="register-field" />
+              <Button fx:id="saveButton" onAction="#handleRegisterSave" styleClass="register-button" text="Salvar" />
+              <Button fx:id="backButton" onAction="#handleBackToLogin" styleClass="back-button" text="Voltar" />
+      </children>
+       </VBox>
+   </children>
 
 </StackPane>
