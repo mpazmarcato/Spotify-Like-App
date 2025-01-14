@@ -1,5 +1,6 @@
 package controller;
 
+import exceptions.LoginException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -11,10 +12,18 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import model.User;
+import repositories.UserRepository;
+import services.UserService;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class LoginController {
+
+    private final UserRepository userRepository = new UserRepository();
+    private final UserService userService = new UserService(userRepository);
+    private final UserController userController = new UserController(userService);
 
     @FXML
     private Pane loginPane; // Painel para a tela de login
@@ -38,32 +47,38 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            showAlert(AlertType.ERROR, "Erro de Login", "Por favor, preencha todos os campos.");
-        } else {
-            // Lógica para verificar o login (apenas exemplo simples)
-            if (username.equals("admin") && password.equals("admin")) {
-                showAlert(AlertType.INFORMATION, "Login Bem-Sucedido", "Bem-vindo, " + username + "!");
-                // Validação de login (exemplo simples)
-                if ("admin".equals(username) && "admin".equals(password)) {
-                    System.out.println("Login bem-sucedido!");
-
-                    // Carregar a próxima tela (MainScreen.fxml)
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/application.fxml"));
-                    Parent root = loader.load();
-
-                    // Obter o estágio atual e mudar a cena
-                    Stage stage = (Stage) loginButton.getScene().getWindow();
-                    Scene newScene = new Scene(root);
-                    stage.setScene(newScene);
-                    stage.show();
-                } else {
-                    System.out.println("Usuário ou senha inválidos.");
-                }
-            } else {
-                showAlert(AlertType.ERROR, "Erro de Login", "Usuário ou senha inválidos.");
+        try {
+            if (username.isEmpty() || password.isEmpty()) {
+                throw new LoginException("Por favor, preencha todos os campos.");
             }
+
+            Optional<User> userOptional = userController.findAllUsers()
+                    .stream()
+                    .filter(user -> user.getUsername().equals(username) && user.getPassword().equals(password))
+                    .findFirst();
+
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                showAlert(AlertType.INFORMATION, "Login Bem-Sucedido", "Bem-vindo, " + user.getUsername() + "!");
+
+                // Carregar a próxima tela (MainScreen.fxml)
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/application.fxml"));
+                Parent root = loader.load();
+
+                Stage stage = (Stage) usernameField.getScene().getWindow();
+                stage.setScene(new Scene(root));
+                stage.show();
+            } else {
+                throw new LoginException("Usuário ou senha inválidos. Deseja criar um novo usuário?");
+            }
+        } catch (LoginException e) {
+            showAlert(AlertType.ERROR, "Erro de Login", e.getMessage());
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            showAlert(AlertType.ERROR, "Erro inesperado", "Ocorreu um erro inesperado.");
         }
+
     }
 
     @FXML
@@ -89,9 +104,16 @@ public class LoginController {
         if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
             showAlert(AlertType.ERROR, "Erro no Cadastro", "Por favor, preencha todos os campos.");
         } else {
-            // Lógica para salvar o registro (exemplo simples: mensagem de sucesso)
-            showAlert(AlertType.INFORMATION, "Cadastro Bem-Sucedido", "Usuário cadastrado com sucesso: " + username);
-            handleBackToLogin(); // Volta para a tela de login após cadastrar
+            User newUser = new User(null, username, password, email);
+            Optional<User> savedUser = userController.saveUser(newUser);
+
+            if (savedUser.isPresent()) {
+                showAlert(AlertType.INFORMATION, "Cadastro Bem-Sucedido", "Usuário cadastrado com sucesso: " + username);
+                handleBackToLogin();
+            } else {
+                showAlert(AlertType.ERROR, "Erro no Cadastro", "Erro ao salvar o usuário. Tente novamente.");
+            }
+
         }
     }
 
