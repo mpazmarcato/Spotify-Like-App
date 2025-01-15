@@ -59,15 +59,22 @@ public class LoginController {
 
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
-                showAlert(AlertType.INFORMATION, "Login Bem-Sucedido", "Bem-vindo, " + user.getUsername() + "!");
+                user.setLogged(true);
+                Optional<User> userLogged = userController.updateUser(user);
+                if(userLogged.isPresent()){
+                    System.out.println("User logged");
+                    showAlert(AlertType.INFORMATION, "Login Bem-Sucedido", "Bem-vindo, " + user.getUsername() + "!");
+                    // Carregar a próxima tela (MainScreen.fxml)
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/application.fxml"));
+                    Parent root = loader.load();
 
-                // Carregar a próxima tela (MainScreen.fxml)
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/application.fxml"));
-                Parent root = loader.load();
+                    Stage stage = (Stage) usernameField.getScene().getWindow();
+                    stage.setScene(new Scene(root));
+                    stage.show();
+                } else {
+                    throw new LoginException("Erro ao logar o usuário.");
+                }
 
-                Stage stage = (Stage) usernameField.getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.show();
             } else {
                 throw new LoginException("Usuário ou senha inválidos. Deseja criar um novo usuário?");
             }

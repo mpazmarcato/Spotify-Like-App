@@ -32,4 +32,9 @@ public class SongService {
     public List<Song> findAllSongs() {
         return songRepository.findAllSongs();
     }
+
+    public List<Song> findAllPodcastsByTitle(String title) {
+        return songRepository.findAllPodcastsByTitle(title);
+    }
+
 }

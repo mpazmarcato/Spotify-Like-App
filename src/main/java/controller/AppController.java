@@ -103,7 +103,7 @@ public class AppController {
     private void searchPodcasts(String query) {
         contentLabel.setText("Buscando podcasts...");
         // Supondo que haja um método de busca de podcasts (não implementado aqui)
-        // podcastController.searchPodcasts(query);
+        // songController.searchPodcasts(query);
         // updateSearchResults(podcastController.getPodcastResults());
     }
 
@@ -129,7 +129,7 @@ public class AppController {
     @FXML
     private void handleLibraryButtonClick() {
         contentLabel.setText("Sua Biblioteca");
-        // Aqui você pode exibir as músicas e playlists do usuário
+        // Aqui você pode exibir as músicas e playlists do usuário - TODO: esse método existe também;
        //updateLibraryView(playlistController.findAllPlaylists());
     }
 
@@ -148,6 +148,8 @@ public class AppController {
     @FXML
     private void handleCreatePodcast() {
         System.out.println("Criando Podcast...");
+
+        //TODO: o méotodo de criar podcast ja existe(saveSong), basta selecionar o type do Song como podcast
 
         // Exemplo de criação de um Podcast
 //        // Supondo que o PodcastController tenha um método 'createPodcast'
@@ -188,7 +190,8 @@ public class AppController {
             Optional<String> descriptionResult = descriptionDialog.showAndWait();
             descriptionResult.ifPresent(description -> {
                 // Agora, associando a playlist ao usuário logado (supondo que exista um usuário)
-//                User loggedInUser = userController.getLoggedInUser(); // Método que retorna o usuário logado
+//                User loggedInUser = userController.getLoggedInUser(); // Método que retorna o usuário logado - preciso pegar o usuario logado? podemos fazer isso apenas pegando seu username do front e ai fazer uma busca por username.
+                // para pegar o usuario logado irei precisar de informações do front de todo jeito.
 //                if (loggedInUser != null) {
 //                    Playlist newPlaylist = new Playlist(0, playlistName, 0, description, loggedInUser);
 //
@@ -197,7 +200,7 @@ public class AppController {
 //                    // para selecionar músicas ou pegando automaticamente da biblioteca do usuário.
 //
 //                    // Exemplo de como adicionar músicas (essa parte pode ser expandida conforme necessário)
-//                    List<Song> userSongs = songController.getUserSongs(loggedInUser); // Método que retorna músicas do usuário
+//                    List<Song> userSongs = songController.getUserSongs(loggedInUser); // Método que retorna músicas do usuário - musicas do usuario ou as playlists do usuario?
 //                    if (!userSongs.isEmpty()) {
 //                        newPlaylist.getSongs().addAll(userSongs);
 //                    }
