@@ -33,4 +33,8 @@ public class SongController {
     public void deleteSongById(int id) {
         songService.deleteSongById(id);
     }
+
+    public List<Song> findAllPodcastsByTitle(String title) {
+        return songService.findAllPodcastsByTitle(title);
+    }
 }

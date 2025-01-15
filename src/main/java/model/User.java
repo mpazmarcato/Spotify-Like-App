@@ -17,6 +17,7 @@ public class User {
     private String password;
     private String email;
     private String profilePicture;
+    private Boolean isLogged = false;
 
     @ElementCollection(targetClass = UserType.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_types", joinColumns = @JoinColumn(name = "user_id"))
@@ -88,5 +89,13 @@ public class User {
 
     public List<UserType> getUserType() {
         return usersType;
+    }
+
+    public Boolean getLogged() {
+        return isLogged;
+    }
+
+    public void setLogged(Boolean logged) {
+        isLogged = logged;
     }
 }
