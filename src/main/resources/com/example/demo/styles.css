@@ -280,3 +280,24 @@
     -fx-background-color: #333333; /* Fundo cinza escuro */
     -fx-text-fill: #cccccc; /* Cor do texto */
 }
+
+/* Estilo para o Slider */
+.slider {
+    -fx-background-color: #444444;
+    -fx-accent: #00ff00; /* Cor da barra de progresso */
+}
+
+/* Estilo para o Label */
+.label {
+    -fx-text-fill: white; /* Texto branco para o label de tempo */
+    -fx-font-size: 14px;
+}
+
+#timeSlider {
+    -fx-accent: #0078d7; /* Cor da bolinha */
+    -fx-background-color: #f0f0f0;
+}
+
+#timeSlider .thumb {
+    -fx-background-color: #0078d7; /* Cor do "thumb" */
+}

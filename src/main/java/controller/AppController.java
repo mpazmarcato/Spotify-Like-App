@@ -94,10 +94,12 @@ public class AppController {
         }
 
         loadPlaylists();  // Carrega as playlists
+
+        // Listener para o timeSlider
+        timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> handleTimeSliderChange());
     }
 
-
-    private void loadPlaylists() { // n mexe
+    private void loadPlaylists() {
         File mediaDir = new File("src/main/java/media");  // Caminho para a pasta 'media'
         playlist = new ArrayList<>();
 
@@ -122,8 +124,7 @@ public class AppController {
         }
     }
 
-
-    private boolean isValidMusicFile(File file) { // n mexe
+    private boolean isValidMusicFile(File file) {
         String[] validExtensions = {".mp3", ".wav", ".flac"};
         for (String ext : validExtensions) {
             if (file.getName().toLowerCase().endsWith(ext)) {
@@ -135,7 +136,7 @@ public class AppController {
 
     // Lógica de busca
     @FXML
-    private void handleSearchButtonClick() { // ta dando um erro
+    private void handleSearchButtonClick() {
         String searchQuery = searchField.getText();
         if (searchQuery != null && !searchQuery.isEmpty()) {
             // Buscando músicas, playlists ou podcasts
@@ -166,12 +167,10 @@ public class AppController {
     private void searchPodcasts(String query) {
         contentLabel.setText("Buscando podcasts...");
         // Supondo que haja um método de busca de podcasts (não implementado aqui)
-        // songController.searchPodcasts(query);
-        // updateSearchResults(podcastController.getPodcastResults());
     }
 
     @FXML
-    void handleCreatePlaylist(ActionEvent event) { // acho q sem querer mudei
+    void handleCreatePlaylist(ActionEvent event) {
         System.out.println("Função Criar Playlist em desenvolvimento.");
     }
 
@@ -185,10 +184,9 @@ public class AppController {
         System.out.println("Create Podcast button clicked!");
     }
 
-
     // NÃO MEXA AQUI
     @FXML
-    void handleSongSelection() { // n mude
+    void handleSongSelection() {
         String selectedSong = songList.getSelectionModel().getSelectedItem();
         if (selectedSong != null) {
             for (int i = 0; i < playlist.size(); i++) {
@@ -200,7 +198,6 @@ public class AppController {
             }
         }
     }
-
 
     @FXML
     void handleTogglePlayPause(ActionEvent event) {
@@ -231,9 +228,14 @@ public class AppController {
 
             // Configura a ação para a próxima música quando a atual terminar
             mediaPlayer.setOnEndOfMedia(this::handleNextSong);
+
+            // Defina o tempo máximo da barra de progresso
+            timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
+
+            // Atualiza a cada segundo
+            updateMusicProgress();
         }
     }
-
 
     @FXML
     private void handleNextSong() {
@@ -248,7 +250,7 @@ public class AppController {
     }
 
     @FXML
-    void handleLeaveButton(ActionEvent event) { //isso funciona
+    void handleLeaveButton(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/Login.fxml"));
             Parent loginScreen = loader.load();
@@ -269,13 +271,11 @@ public class AppController {
     }
 
     @FXML
-    void handleProfileButton(ActionEvent event) { // isso funciona
+    void handleProfileButton(ActionEvent event) {
         try {
-            // Carregar o arquivo FXML da tela de perfil
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/profile.fxml"));
             Parent root = loader.load(); // Carrega o conteúdo do FXML
 
-            // Criar a nova cena e configurar a janela
             Scene scene = new Scene(root);
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(scene);
@@ -296,5 +296,40 @@ public class AppController {
         }
     }
 
+    private void updateMusicProgress() {
+        // Atualizar a cada segundo
+        javafx.animation.Timeline timeline = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(
+                        javafx.util.Duration.seconds(1),
+                        event -> {
+                            if (mediaPlayer != null && mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
+                                // Atualiza o valor da barra de progresso (timeSlider)
+                                timeSlider.setValue(mediaPlayer.getCurrentTime().toSeconds());
 
+                                // Atualiza o label de tempo (timeLabel)
+                                int currentSeconds = (int) mediaPlayer.getCurrentTime().toSeconds();
+                                int minutes = currentSeconds / 60;
+                                int seconds = currentSeconds % 60;
+                                timeLabel.setText(String.format("%02d:%02d", minutes, seconds));
+                            }
+                        }
+                )
+        );
+        timeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        timeline.play();
+    }
+
+    @FXML
+    private void handleTimeSliderChange() {
+        if (mediaPlayer != null) {
+            // Ajustar a posição atual da música
+            mediaPlayer.seek(javafx.util.Duration.seconds(timeSlider.getValue()));
+
+            // Atualizar o tempo no label após o usuário arrastar o slider
+            int currentSeconds = (int) timeSlider.getValue();
+            int minutes = currentSeconds / 60;
+            int seconds = currentSeconds % 60;
+            timeLabel.setText(String.format("%02d:%02d", minutes, seconds));
+        }
+    }
 }
