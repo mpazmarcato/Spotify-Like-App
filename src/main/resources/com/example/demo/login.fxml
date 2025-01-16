@@ -14,8 +14,9 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.geometry.Pos?>
 
-<StackPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="controller.LoginController">
-   <children>
+<StackPane prefHeight="696.0" prefWidth="1064.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.LoginController">
+
+    <children>
    
        <!-- Tela de Login -->
        <VBox fx:id="loginPane" alignment="CENTER" spacing="20" styleClass="login-container" visible="true">
