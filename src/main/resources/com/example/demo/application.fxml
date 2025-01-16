@@ -60,7 +60,7 @@
                 <!-- Recommendations Section -->
                 <Text styleClass="section-title" text="Recomendações" />
 
-                <!-- Recent Songs Section (newly added) -->
+                <!-- Recent Songs Section -->
                 <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                     <children>
                         <Label text="Músicas Recentes">
@@ -90,12 +90,11 @@
                 <Button fx:id="toggleButton" onAction="#handleTogglePlayPause" text="Play/Pause" />
                 <Button onAction="#handleNextSong" text="&gt;&gt;" />
                 <Label fx:id="timeLabel" text="00:00"/>
-                <Slider fx:id="timeSlider" HBox.hgrow="ALWAYS" />
+                <Slider fx:id="timeSlider" HBox.hgrow="ALWAYS" min="0.0" max="100.0" value="0.0" onMouseDragged="#handleTimeSliderChange" styleClass="slider"/>
             </children>
             <padding>
                 <Insets left="20.0" right="20.0" />
             </padding>
         </HBox>
     </bottom>
-
 </BorderPane>

@@ -215,25 +215,31 @@ public class AppController {
             if (mediaPlayer != null) {
                 mediaPlayer.stop();
             }
+
             Media media = new Media(playlist.get(currentSongIndex).toURI().toString());
             mediaPlayer = new MediaPlayer(media);
-            mediaPlayer.play();
 
-            // Limpa a ListView de "Tocando Agora" e adiciona a música que está tocando
-            nowPlayingList.getItems().clear();  // Limpa antes de adicionar a nova música
-            nowPlayingList.getItems().add(playlist.get(currentSongIndex).getName());  // Adiciona o nome da música
+            // Começa a reprodução imediatamente após a inicialização
+            mediaPlayer.setOnReady(() -> {
+                mediaPlayer.play(); // Começa a música
 
-            // Exibe a música nas últimas tocadas (opcional)
-            updateRecentSongs(playlist.get(currentSongIndex).getName());
+                // Limpa a ListView de "Tocando Agora" e adiciona a música que está tocando
+                nowPlayingList.getItems().clear();
+                nowPlayingList.getItems().add(playlist.get(currentSongIndex).getName());
 
-            // Configura a ação para a próxima música quando a atual terminar
-            mediaPlayer.setOnEndOfMedia(this::handleNextSong);
+                // Atualiza o progresso da música
+                timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
+                updateMusicProgress();
 
-            // Defina o tempo máximo da barra de progresso
-            timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
+                // Adiciona a música à lista de músicas recentes
+                updateRecentSongs(playlist.get(currentSongIndex).getName());
+            });
 
-            // Atualiza a cada segundo
-            updateMusicProgress();
+            mediaPlayer.setOnError(() -> {
+                System.out.println("Erro ao carregar o arquivo: " + mediaPlayer.getError());
+            });
+
+            mediaPlayer.setOnEndOfMedia(this::handleNextSong); // Quando a música terminar, toca a próxima
         }
     }
 
@@ -297,17 +303,16 @@ public class AppController {
     }
 
     private void updateMusicProgress() {
-        // Atualizar a cada segundo
+        // Usando Timeline para atualizar a posição do slider de maneira eficiente
         javafx.animation.Timeline timeline = new javafx.animation.Timeline(
                 new javafx.animation.KeyFrame(
-                        javafx.util.Duration.seconds(1),
+                        javafx.util.Duration.seconds(1),  // Atualiza a cada segundo
                         event -> {
                             if (mediaPlayer != null && mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
-                                // Atualiza o valor da barra de progresso (timeSlider)
-                                timeSlider.setValue(mediaPlayer.getCurrentTime().toSeconds());
+                                double currentTime = mediaPlayer.getCurrentTime().toSeconds();
+                                timeSlider.setValue(currentTime);
 
-                                // Atualiza o label de tempo (timeLabel)
-                                int currentSeconds = (int) mediaPlayer.getCurrentTime().toSeconds();
+                                int currentSeconds = (int) currentTime;
                                 int minutes = currentSeconds / 60;
                                 int seconds = currentSeconds % 60;
                                 timeLabel.setText(String.format("%02d:%02d", minutes, seconds));
@@ -315,6 +320,7 @@ public class AppController {
                         }
                 )
         );
+
         timeline.setCycleCount(javafx.animation.Animation.INDEFINITE);
         timeline.play();
     }
