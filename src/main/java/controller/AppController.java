@@ -1,6 +1,9 @@
 package controller;
 
 import exceptions.LoginException;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
 import services.*;
@@ -34,6 +38,12 @@ public class AppController {
     private final SongRepository songRepository = new SongRepository();
     private final SongService songService = new SongService(songRepository);
     private final SongController songController = new SongController(songService);
+
+    @FXML
+    public Button addSongButton;
+
+    @FXML
+    public Button deleteSongButton;
 
     @FXML
     private TextField searchField;
@@ -86,33 +96,42 @@ public class AppController {
 
     @FXML
     private void initialize() {
-        // Verifique se a ListView foi inicializada
         if (recentSongsList != null) {
-            recentSongsList.getItems().clear();  // Limpa a lista de músicas recentes na inicialização
+            recentSongsList.getItems().clear();
         } else {
             System.out.println("recentSongsList não foi inicializado corretamente.");
         }
 
-        loadPlaylists();  // Carrega as playlists
+        loadPlaylists();
 
-        // Listener para o timeSlider
         timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> handleTimeSliderChange());
     }
 
+    private boolean isPlayableMedia(File file) {
+        try {
+            Media testMedia = new Media(file.toURI().toString());
+            MediaPlayer testPlayer = new MediaPlayer(testMedia);
+            testPlayer.dispose();
+            return true;
+        } catch (Exception e) {
+            System.err.println("Arquivo inválido ou corrompido: " + file.getName());
+            return false;
+        }
+    }
+
     private void loadPlaylists() {
-        File mediaDir = new File("src/main/java/media");  // Caminho para a pasta 'media'
+        File mediaDir = new File("src/main/java/media");
         playlist = new ArrayList<>();
 
         if (mediaDir.exists() && mediaDir.isDirectory()) {
-            // Percorre todas as subpastas dentro de 'media'
             for (File genreFolder : mediaDir.listFiles()) {
-                if (genreFolder.isDirectory()) {  // Se for uma pasta (por exemplo, Rap, Pop, etc.)
+                if (genreFolder.isDirectory()) {
                     for (File artistFolder : genreFolder.listFiles()) {
-                        if (artistFolder.isDirectory()) {  // Se for uma subpasta do artista (por exemplo, Eminem)
+                        if (artistFolder.isDirectory()) {
                             for (File songFile : artistFolder.listFiles()) {
-                                if (songFile.isFile() && isValidMusicFile(songFile)) {  // Se for um arquivo de música válido
-                                    playlist.add(songFile);  // Adiciona o arquivo à playlist
-                                    songList.getItems().add(songFile.getName());  // Exibe o nome da música na ListView
+                                if (songFile.isFile() && isValidMusicFile(songFile) && isPlayableMedia(songFile)) {
+                                    playlist.add(songFile);
+                                    songList.getItems().add(songFile.getName());
                                 }
                             }
                         }
@@ -134,12 +153,86 @@ public class AppController {
         return false;
     }
 
-    // Lógica de busca
+    @FXML
+    private void handleAddSongButtonClick() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Arquivos de música", "*.mp3", "*.wav", "*.flac"));
+
+        File selectedFile = fileChooser.showOpenDialog(new Stage());
+
+        if (selectedFile != null) {
+            if (isValidMusicFile(selectedFile) && isPlayableMedia(selectedFile)) {
+                playlist.add(selectedFile);
+
+                songList.getItems().add(selectedFile.getName());
+
+                showAlert("Música adicionada", "A música foi adicionada à playlist com sucesso.");
+            } else {
+                showAlert("Erro", "O arquivo selecionado não é uma música válida.");
+            }
+        }
+    }
+
+    @FXML
+    private void handleDeleteSongButtonClick() {
+        // Obtém a música selecionada na lista de músicas
+        String selectedSongName = songList.getSelectionModel().getSelectedItem();
+
+        if (selectedSongName == null) {
+            showAlert("Erro", "Por favor, selecione uma música para deletar.");
+            return;
+        }
+
+        // Pergunta se o usuário tem certeza que quer deletar a música
+        Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmAlert.setTitle("Confirmação");
+        confirmAlert.setHeaderText("Você tem certeza que deseja excluir a música?");
+        confirmAlert.setContentText("A música será removida da playlist.");
+
+        // Se o usuário confirmar, deletamos a música
+        Optional<ButtonType> result = confirmAlert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // Encontra a música na playlist e remove
+            File songToDelete = null;
+            for (File song : playlist) {
+                if (song.getName().equals(selectedSongName)) {
+                    songToDelete = song;
+                    break;
+                }
+            }
+
+            if (songToDelete != null) {
+                // Remove a música da playlist
+                playlist.remove(songToDelete);
+
+                // Remove a música da lista na interface
+                songList.getItems().remove(selectedSongName);
+
+                showAlert("Música excluída", "A música foi excluída com sucesso.");
+
+//                // Excluir o arquivo fisicamente (opcional)
+//                boolean deleted = songToDelete.delete();
+//                if (deleted) {
+//                    showAlert("Música excluída", "A música foi excluída com sucesso.");
+//                } else {
+//                    showAlert("Erro", "Não foi possível excluir o arquivo da música.");
+//                }
+            }
+        }
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
     @FXML
     private void handleSearchButtonClick() {
         String searchQuery = searchField.getText();
         if (searchQuery != null && !searchQuery.isEmpty()) {
-            // Buscando músicas, playlists ou podcasts
             if (searchQuery.contains("playlist")) {
                 searchPlaylists();
             } else if (searchQuery.contains("song")) {
@@ -166,7 +259,6 @@ public class AppController {
 
     private void searchPodcasts(String query) {
         contentLabel.setText("Buscando podcasts...");
-        // Supondo que haja um método de busca de podcasts (não implementado aqui)
     }
 
     @FXML
@@ -184,7 +276,6 @@ public class AppController {
         System.out.println("Create Podcast button clicked!");
     }
 
-    // NÃO MEXA AQUI
     @FXML
     void handleSongSelection() {
         String selectedSong = songList.getSelectionModel().getSelectedItem();
@@ -211,70 +302,121 @@ public class AppController {
     }
 
     private void playSong() {
-        if (currentSongIndex >= 0 && currentSongIndex < playlist.size()) {
-            if (mediaPlayer != null) {
-                mediaPlayer.stop();
-            }
+        // Verifica se o índice da música está correto
+        if (currentSongIndex < 0 || currentSongIndex >= playlist.size()) {
+            System.err.println("Índice da música está fora dos limites da playlist.");
+            return;
+        }
 
-            Media media = new Media(playlist.get(currentSongIndex).toURI().toString());
-            mediaPlayer = new MediaPlayer(media);
+        // Se o player atual existir, libere-o corretamente
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.dispose();
+        }
 
-            // Começa a reprodução imediatamente após a inicialização
-            mediaPlayer.setOnReady(() -> {
-                mediaPlayer.play(); // Começa a música
+        try {
+            // Criação de uma Task para carregar a música em background (sem bloquear a interface)
+            Task<Void> loadTask = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    File currentSong = playlist.get(currentSongIndex);
+                    Media media = new Media(currentSong.toURI().toString());
 
-                // Limpa a ListView de "Tocando Agora" e adiciona a música que está tocando
-                nowPlayingList.getItems().clear();
-                nowPlayingList.getItems().add(playlist.get(currentSongIndex).getName());
+                    mediaPlayer = new MediaPlayer(media);
 
-                // Atualiza o progresso da música
-                timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
-                updateMusicProgress();
+                    // Desabilitar o buffer automático (deixe o usuário controlar o início)
+                    mediaPlayer.setOnReady(() -> {
+                        // Configurar o player para começar manualmente (não autoplay)
+                        mediaPlayer.seek(javafx.util.Duration.ZERO);  // Começar do início (segundo 0)
+                        nowPlayingList.getItems().clear();
+                        nowPlayingList.getItems().add(currentSong.getName());
+                        timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());  // Atualiza o slider de tempo
+                        updateMusicProgress();  // Inicia o progresso da música
+                        updateRecentSongs(currentSong.getName());  // Atualiza músicas recentes
+                        preBufferNextSong();  // Pré-carregar a próxima música
+                        mediaPlayer.play(); // Inicia a reprodução manualmente
+                    });
 
-                // Adiciona a música à lista de músicas recentes
-                updateRecentSongs(playlist.get(currentSongIndex).getName());
+                    // Define o que acontece quando a música terminar
+                    mediaPlayer.setOnEndOfMedia(() -> handleNextSong());
+
+                    // Tratamento de erro
+                    mediaPlayer.setOnError(() -> {
+                        System.err.println("Erro ao tentar reproduzir a música: " + currentSong.getName());
+                        System.err.println("Detalhes do erro: " + mediaPlayer.getError());
+                        handleNextSong();  // Caso de erro, tenta a próxima música
+                    });
+
+                    return null;
+                }
+            };
+
+            loadTask.setOnFailed(e -> {
+                System.err.println("Erro ao carregar música: " + playlist.get(currentSongIndex).getName());
+                System.err.println("Detalhes do erro: " + loadTask.getException());
             });
 
-            mediaPlayer.setOnError(() -> {
-                System.out.println("Erro ao carregar o arquivo: " + mediaPlayer.getError());
-            });
+            new Thread(loadTask).start();
 
-            mediaPlayer.setOnEndOfMedia(this::handleNextSong); // Quando a música terminar, toca a próxima
+        } catch (Exception e) {
+            System.err.println("Erro ao carregar a música: " + playlist.get(currentSongIndex).getName());
+            e.printStackTrace();
         }
     }
 
+    // Função para pré-bufferizar a próxima música
+    private void preBufferNextSong() {
+        // Tentando pré-bufferizar de forma eficiente
+        int nextSongIndex = (currentSongIndex + 1) % playlist.size();
+        if (nextSongIndex != currentSongIndex) {
+            File nextSong = playlist.get(nextSongIndex);
+            Media nextMedia = new Media(nextSong.toURI().toString());
+
+            // Cria um MediaPlayer para a próxima música, mas sem tocar
+            MediaPlayer nextPlayer = new MediaPlayer(nextMedia);
+
+            // Configura o próximo player para pré-bufferizar
+            nextPlayer.setOnReady(() -> {
+                nextPlayer.dispose(); // Libera recursos após o carregamento
+            });
+
+            nextPlayer.setOnError(() -> nextPlayer.dispose()); // Libera se ocorrer erro
+            nextPlayer.play(); // Pré-carrega a próxima música
+        }
+    }
+
+    // Função otimizada para lidar com a transição para a próxima música
     @FXML
     private void handleNextSong() {
+        // Se a playlist estiver vazia, não tenta reproduzir música
+        if (playlist.isEmpty()) {
+            System.err.println("A playlist está vazia!");
+            return;
+        }
+
+        // Avança para a próxima música (circular)
         currentSongIndex = (currentSongIndex + 1) % playlist.size();
+
+        // Toca a próxima música
         playSong();
     }
 
     @FXML
     private void handlePreviousSong(ActionEvent event) {
+        // Se a playlist estiver vazia, não tenta retroceder a música
+        if (playlist.isEmpty()) {
+            System.err.println("A playlist está vazia!");
+            return;
+        }
+
+        // Retrocede para a música anterior (circular)
         currentSongIndex = (currentSongIndex - 1 + playlist.size()) % playlist.size();
+
+        // Toca a música anterior
         playSong();
     }
 
-    @FXML
-    void handleLeaveButton(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/Login.fxml"));
-            Parent loginScreen = loader.load();
 
-            Scene loginScene = new Scene(loginScreen, 800, 600);
-
-            String css = getClass().getResource("/com/example/demo/styles.css").toExternalForm();
-            loginScene.getStylesheets().add(css);
-
-            javafx.stage.Stage stage = (javafx.stage.Stage) leaveButton.getScene().getWindow();
-            stage.setScene(loginScene);
-            stage.setTitle("Spotify Application");
-
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @FXML
     void handleProfileButton(ActionEvent event) {
@@ -291,9 +433,28 @@ public class AppController {
         }
     }
 
+    @FXML
+    void handleLeaveButton(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/Login.fxml"));
+            Parent loginScreen = loader.load();
+
+            Scene loginScene = new Scene(loginScreen, 800, 600);
+            String css = getClass().getResource("/com/example/demo/styles.css").toExternalForm();
+            loginScene.getStylesheets().add(css);
+
+            Stage stage = (Stage) leaveButton.getScene().getWindow();
+            stage.setScene(loginScene);
+            stage.setTitle("Spotify Application");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void updateRecentSongs(String songName) {
         if (recentSongsList != null) {
-            recentSongsList.getItems().add(0, songName);  // Evita a exceção de NullPointer
+            recentSongsList.getItems().add(0, songName);
             if (recentSongsList.getItems().size() > 3) {
                 recentSongsList.getItems().remove(3);
             }
@@ -303,10 +464,10 @@ public class AppController {
     }
 
     private void updateMusicProgress() {
-        // Usando Timeline para atualizar a posição do slider de maneira eficiente
+        // Atualiza o progresso da música usando um Timeline
         javafx.animation.Timeline timeline = new javafx.animation.Timeline(
                 new javafx.animation.KeyFrame(
-                        javafx.util.Duration.seconds(1),  // Atualiza a cada segundo
+                        javafx.util.Duration.seconds(1), // Atualiza a cada segundo
                         event -> {
                             if (mediaPlayer != null && mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
                                 double currentTime = mediaPlayer.getCurrentTime().toSeconds();
@@ -327,11 +488,9 @@ public class AppController {
 
     @FXML
     private void handleTimeSliderChange() {
-        if (mediaPlayer != null) {
-            // Ajustar a posição atual da música
+        if (mediaPlayer != null && mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
             mediaPlayer.seek(javafx.util.Duration.seconds(timeSlider.getValue()));
 
-            // Atualizar o tempo no label após o usuário arrastar o slider
             int currentSeconds = (int) timeSlider.getValue();
             int minutes = currentSeconds / 60;
             int seconds = currentSeconds % 60;

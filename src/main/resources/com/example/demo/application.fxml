@@ -20,13 +20,15 @@
 
     <!-- Left Sidebar -->
     <left>
-        <VBox prefWidth="200.0" spacing="10" styleClass="sidebar">
+        <VBox prefWidth="300.0" spacing="10" styleClass="sidebar" alignment="CENTER">
             <children>
-                <Button onAction="#handleProfileButton" styleClass="nav-button" text="Perfil" />
-                <Button onAction="#handleLibraryButton" styleClass="nav-button" text="Sua Biblioteca" />
-                <Button onAction="#handleCreatePodcast" styleClass="nav-button" text="Criar Podcast" />
-                <Button onAction="#handleCreatePlaylist" styleClass="nav-button" text="Criar Playlist" />
-                <Button fx:id="leaveButton" onAction="#handleLeaveButton" styleClass="nav-button" text="Sair" />
+                <Button onAction="#handleProfileButton" styleClass="nav-button" text="Perfil" maxWidth="300.0"/>
+                <Button onAction="#handleLibraryButton" styleClass="nav-button" text="Sua Biblioteca" maxWidth="300.0"/>
+                <Button onAction="#handleCreatePodcast" styleClass="nav-button" text="Criar Podcast" maxWidth="300.0"/>
+                <Button onAction="#handleCreatePlaylist" styleClass="nav-button" text="Criar Playlist" maxWidth="300.0"/>
+                <Button fx:id="addSongButton" styleClass="nav-button" text="Adicionar Música" onAction="#handleAddSongButtonClick" maxWidth="300.0"/>
+                <Button fx:id="deleteSongButton" styleClass="nav-button" text="Deletar Música" onAction="#handleDeleteSongButtonClick" maxWidth="300.0"/>
+                <Button fx:id="leaveButton" onAction="#handleLeaveButton" styleClass="nav-button" text="Sair" maxWidth="300.0"/>
             </children>
         </VBox>
     </left>
