@@ -20,13 +20,15 @@
 
     <!-- Left Sidebar -->
     <left>
-        <VBox prefWidth="200.0" spacing="10" styleClass="sidebar">
+        <VBox prefWidth="300.0" spacing="10" styleClass="sidebar" alignment="CENTER">
             <children>
-                <Button onAction="#handleProfileButton" styleClass="nav-button" text="Perfil" />
-                <Button onAction="#handleLibraryButton" styleClass="nav-button" text="Sua Biblioteca" />
-                <Button onAction="#handleCreatePodcast" styleClass="nav-button" text="Criar Podcast" />
-                <Button onAction="#handleCreatePlaylist" styleClass="nav-button" text="Criar Playlist" />
-                <Button fx:id="leaveButton" onAction="#handleLeaveButton" styleClass="nav-button" text="Sair" />
+                <Button onAction="#handleProfileButton" styleClass="nav-button" text="Perfil" maxWidth="300.0"/>
+                <Button onAction="#handleLibraryButton" styleClass="nav-button" text="Sua Biblioteca" maxWidth="300.0"/>
+                <Button onAction="#handleCreatePodcast" styleClass="nav-button" text="Criar Podcast" maxWidth="300.0"/>
+                <Button onAction="#handleCreatePlaylist" styleClass="nav-button" text="Criar Playlist" maxWidth="300.0"/>
+                <Button fx:id="addSongButton" styleClass="nav-button" text="Adicionar Música" onAction="#handleAddSongButtonClick" maxWidth="300.0"/>
+                <Button fx:id="deleteSongButton" styleClass="nav-button" text="Deletar Música" onAction="#handleDeleteSongButtonClick" maxWidth="300.0"/>
+                <Button fx:id="leaveButton" onAction="#handleLeaveButton" styleClass="nav-button" text="Sair" maxWidth="300.0"/>
             </children>
         </VBox>
     </left>
@@ -60,7 +62,7 @@
                 <!-- Recommendations Section -->
                 <Text styleClass="section-title" text="Recomendações" />
 
-                <!-- Recent Songs Section (newly added) -->
+                <!-- Recent Songs Section -->
                 <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                     <children>
                         <Label text="Músicas Recentes">
@@ -90,12 +92,11 @@
                 <Button fx:id="toggleButton" onAction="#handleTogglePlayPause" text="Play/Pause" />
                 <Button onAction="#handleNextSong" text="&gt;&gt;" />
                 <Label fx:id="timeLabel" text="00:00"/>
-                <Slider fx:id="timeSlider" HBox.hgrow="ALWAYS" />
+                <Slider fx:id="timeSlider" HBox.hgrow="ALWAYS" min="0.0" max="100.0" value="0.0" onMouseDragged="#handleTimeSliderChange" styleClass="slider"/>
             </children>
             <padding>
                 <Insets left="20.0" right="20.0" />
             </padding>
         </HBox>
     </bottom>
-
 </BorderPane>
