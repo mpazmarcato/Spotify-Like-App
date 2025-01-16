@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="696.0" prefWidth="1064.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ProfileController">
+   <children>
+   
+       <!-- Container principal -->
+       <VBox alignment="TOP_CENTER" spacing="20" styleClass="profile-container" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="50.0">
+           <children>
+               <!-- Título da tela -->
+               <Text styleClass="profile-title" text="Perfil do Usuário" />
+            <ImageView fx:id="profileImage" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/imagehomem.jpg" />
+               </image>
+            </ImageView>
+   
+               <Button fx:id="changePictureButton" onAction="#handleChangePicture" styleClass="profile-button" text="Alterar Foto" />
+   
+               <!-- Informações do usuário -->
+               <VBox alignment="CENTER_LEFT" spacing="10" styleClass="profile-info">
+                   <children>
+                       <HBox spacing="10">
+                          <children>
+                              <Label styleClass="profile-label" text="Nome:" />
+                              <Label fx:id="nameLabel" styleClass="profile-value" text="-" />
+                          </children>
+                       </HBox>
+                       <HBox spacing="10">
+                          <children>
+                              <Label styleClass="profile-label" text="E-mail:" />
+                              <Label fx:id="emailLabel" styleClass="profile-value" text="-" />
+                          </children>
+                       </HBox>
+                       <HBox spacing="10">
+                          <children>
+                              <Label styleClass="profile-label" text="Usuário:" />
+                              <Label fx:id="usernameLabel" styleClass="profile-value" text="-" />
+                          </children>
+                       </HBox>
+                   </children>
+               </VBox>
+   
+               <!-- Botões de ação -->
+               <VBox alignment="CENTER" spacing="15">
+      <children>
+                      <Button fx:id="editProfileButton" onAction="#handleEditProfile" styleClass="profile-button" text="Editar Perfil" />
+                      <Button fx:id="logoutButton" onAction="#handleLogout" styleClass="logout-button" text="Sair" />
+      </children>
+               </VBox>
+           </children>
+       </VBox>
+   </children>
+</AnchorPane>

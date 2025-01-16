@@ -164,3 +164,119 @@
     -fx-padding: 5px;
 }
 
+/* styles.css */
+
+/* Estilo geral do contêiner */
+.profile-container {
+    -fx-padding: 20;
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #dcdcdc;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+/* Título do perfil */
+.profile-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+/* Foto do perfil */
+#profilePicture {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 2);
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+}
+
+/* Botões gerais */
+.profile-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-background-color: #0078d7;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.profile-button:hover {
+    -fx-background-color: #005a9e;
+}
+
+/* Botão de logout */
+.logout-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-background-color: #d9534f;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.logout-button:hover {
+    -fx-background-color: #c9302c;
+}
+
+/* Labels de informações */
+.profile-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #555555;
+}
+
+.profile-value {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+}
+
+/* Informações do usuário */
+.profile-info {
+    -fx-padding: 10;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dcdcdc;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 1);
+}
+
+/* Cor de fundo da ListView (cinza escuro) */
+.list-view {
+    -fx-background-color: #333333; /* Cor do fundo cinza escuro */
+    -fx-border-color: #555555;    /* Cor da borda, um cinza mais claro */
+}
+
+/* Estilo para os itens (cells) dentro do ListView */
+.list-cell {
+    -fx-background-color: transparent; /* Fundo transparente para cada item */
+    -fx-text-fill: #cccccc; /* Cor do texto em cinza claro para contraste */
+}
+
+/* Mudança de cor ao passar o mouse sobre um item */
+.list-cell:hover {
+    -fx-background-color: #444444; /* Cor de fundo mais clara quando o mouse passa por cima */
+    -fx-text-fill: #ffffff; /* Cor do texto branca ao passar o mouse */
+}
+
+/* Cor de fundo do item selecionado */
+.list-cell:focused {
+    -fx-background-color: #555555; /* Cor de fundo mais clara quando o item está selecionado */
+    -fx-text-fill: #ffffff; /* Texto branco quando selecionado */
+}
+
+/* Estilo para a ListView de músicas recentes */
+#recentSongsList .list-cell {
+    -fx-background-color: #333333; /* Fundo cinza escuro */
+    -fx-text-fill: #cccccc; /* Cor do texto */
+}
+
+/* Estilo para a ListView de músicas tocando agora */
+#nowPlayingList .list-cell {
+    -fx-background-color: #333333; /* Fundo cinza escuro */
+    -fx-text-fill: #cccccc; /* Cor do texto */
+}

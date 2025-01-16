@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import model.User;
 import repositories.UserRepository;
 import services.UserService;
+import util.UserSession;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -59,6 +60,7 @@ public class LoginController {
 
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
+                User loggedInUser = UserSession.getLoggedInUser(); // Obtém o usuário logado
                 user.setLogged(true);
                 Optional<User> userLogged = userController.updateUser(user);
                 if(userLogged.isPresent()){

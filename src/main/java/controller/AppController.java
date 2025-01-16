@@ -1,78 +1,141 @@
 package controller;
 
+import exceptions.LoginException;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.stage.Stage;
 import model.*;
 import services.*;
 import repositories.*;
+import util.UserSession;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class AppController {
+    private final UserRepository userRepository = new UserRepository();
+    private final UserService userService = new UserService(userRepository);
+    private final UserController userController = new UserController(userService);
 
-    // FXML Injections
-    @FXML private TextField searchField;
-    @FXML private Button searchButton;
-    @FXML private Button homeButton;
-    @FXML private Button libraryButton;
-    @FXML private ListView<String> resultListView;
-    @FXML private ListView<String> nowPlayingList;
-    @FXML private Text currentSongText;
-    @FXML private ImageView playlistImage1;
-    @FXML private ImageView playlistImage2;
-    @FXML private ImageView playlistImage3;
-    @FXML private Label contentLabel;
-    @FXML private VBox leftSidebar;
+    private final PlaylistRepository playlistRepository = new PlaylistRepository();
+    private final PlaylistService playlistService = new PlaylistService(playlistRepository);
+    private final PlaylistController playlistController = new PlaylistController(playlistService);
 
-    // Controladores de funcionalidades adicionais
-    private UserController userController;
-    private SongController songController;
-    private PlaylistController playlistController;
-    private AlbumController albumController;
-    private MusicPlayerController musicPlayerController;
+    private final SongRepository songRepository = new SongRepository();
+    private final SongService songService = new SongService(songRepository);
+    private final SongController songController = new SongController(songService);
+
+    @FXML
+    private TextField searchField;
+
+    @FXML
+    private Button searchButton;
+
+    @FXML
+    private Button leaveButton;
+
+    @FXML
+    private Button libraryButton;
+
+    @FXML
+    private ListView<String> playlistList;
+
+    @FXML
+    private ListView<String> songList;
+
+    @FXML
+    private ListView<String> nowPlayingList;
+
+    @FXML
+    private ListView<String> recentSongsList;
+
+    @FXML
+    private Label nameLabel;
+
+    @FXML
+    private Button toggleButton;
+
+    @FXML
+    private Label timeLabel;
+
+    @FXML
+    private Slider timeSlider;
+
+    @FXML
+    private TextField usernameField;
+
+    @FXML
+    private TextField emailField;
+
+    @FXML
+    private Label contentLabel;
+
+    private List<File> playlist;
+    private MediaPlayer mediaPlayer;
+    private int currentSongIndex = -1;
 
     @FXML
     private void initialize() {
-        // Inicializando os repositórios
-        UserRepository userRepository = new UserRepository();
-        SongRepository songRepository = new SongRepository();
-        PlaylistRepository playlistRepository = new PlaylistRepository();
-        AlbumRepository albumRepository = new AlbumRepository();
+        // Verifique se a ListView foi inicializada
+        if (recentSongsList != null) {
+            recentSongsList.getItems().clear();  // Limpa a lista de músicas recentes na inicialização
+        } else {
+            System.out.println("recentSongsList não foi inicializado corretamente.");
+        }
 
-        // Inicializando os controladores com os serviços apropriados
-        UserService userService = new UserService(userRepository);
-        SongService songService = new SongService(songRepository);
-        PlaylistService playlistService = new PlaylistService(playlistRepository);
-        AlbumService albumService = new AlbumService(albumRepository);
+        loadPlaylists();  // Carrega as playlists
+    }
 
-        userController = new UserController(userService);
-        songController = new SongController(songService);
-        playlistController = new PlaylistController(playlistService);
-        albumController = new AlbumController(albumService);
-        musicPlayerController = new MusicPlayerController();
 
-        // Configurando os listeners de eventos
-        searchButton.setOnAction(event -> handleSearchButtonClick());
-        homeButton.setOnAction(event -> handleHomeButtonClick());
-        libraryButton.setOnAction(event -> handleLibraryButtonClick());
+    private void loadPlaylists() { // n mexe
+        File mediaDir = new File("src/main/java/media");  // Caminho para a pasta 'media'
+        playlist = new ArrayList<>();
 
-        // Configurando as imagens das playlists com eventos de clique
-        playlistImage1.setOnMouseClicked(this::handlePlaylistImageClick);
-        playlistImage2.setOnMouseClicked(this::handlePlaylistImageClick);
-        playlistImage3.setOnMouseClicked(this::handlePlaylistImageClick);
+        if (mediaDir.exists() && mediaDir.isDirectory()) {
+            // Percorre todas as subpastas dentro de 'media'
+            for (File genreFolder : mediaDir.listFiles()) {
+                if (genreFolder.isDirectory()) {  // Se for uma pasta (por exemplo, Rap, Pop, etc.)
+                    for (File artistFolder : genreFolder.listFiles()) {
+                        if (artistFolder.isDirectory()) {  // Se for uma subpasta do artista (por exemplo, Eminem)
+                            for (File songFile : artistFolder.listFiles()) {
+                                if (songFile.isFile() && isValidMusicFile(songFile)) {  // Se for um arquivo de música válido
+                                    playlist.add(songFile);  // Adiciona o arquivo à playlist
+                                    songList.getItems().add(songFile.getName());  // Exibe o nome da música na ListView
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            System.out.println("Diretório de mídia não encontrado.");
+        }
+    }
 
-        // Inicializando o player de música
-        musicPlayerController.initializePlayer();
+
+    private boolean isValidMusicFile(File file) { // n mexe
+        String[] validExtensions = {".mp3", ".wav", ".flac"};
+        for (String ext : validExtensions) {
+            if (file.getName().toLowerCase().endsWith(ext)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Lógica de busca
     @FXML
-    private void handleSearchButtonClick() {
+    private void handleSearchButtonClick() { // ta dando um erro
         String searchQuery = searchField.getText();
         if (searchQuery != null && !searchQuery.isEmpty()) {
             // Buscando músicas, playlists ou podcasts
@@ -107,166 +170,131 @@ public class AppController {
         // updateSearchResults(podcastController.getPodcastResults());
     }
 
-    private void updateSearchResults(String[] results) {
-        resultListView.getItems().clear();
-        if (results != null && results.length > 0) {
-            for (String result : results) {
-                resultListView.getItems().add(result);
+    @FXML
+    void handleCreatePlaylist(ActionEvent event) { // acho q sem querer mudei
+        System.out.println("Função Criar Playlist em desenvolvimento.");
+    }
+
+    @FXML
+    void handleLibraryButton(ActionEvent event) {
+        System.out.println("Library button clicked!");
+    }
+
+    @FXML
+    void handleCreatePodcast(ActionEvent event) {
+        System.out.println("Create Podcast button clicked!");
+    }
+
+
+    // NÃO MEXA AQUI
+    @FXML
+    void handleSongSelection() { // n mude
+        String selectedSong = songList.getSelectionModel().getSelectedItem();
+        if (selectedSong != null) {
+            for (int i = 0; i < playlist.size(); i++) {
+                if (playlist.get(i).getName().equals(selectedSong)) {
+                    currentSongIndex = i;
+                    playSong();
+                    break;
+                }
+            }
+        }
+    }
+
+
+    @FXML
+    void handleTogglePlayPause(ActionEvent event) {
+        if (mediaPlayer == null) {
+            playSong();
+        } else if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
+            mediaPlayer.pause();
+        } else {
+            mediaPlayer.play();
+        }
+    }
+
+    private void playSong() {
+        if (currentSongIndex >= 0 && currentSongIndex < playlist.size()) {
+            if (mediaPlayer != null) {
+                mediaPlayer.stop();
+            }
+            Media media = new Media(playlist.get(currentSongIndex).toURI().toString());
+            mediaPlayer = new MediaPlayer(media);
+            mediaPlayer.play();
+
+            // Limpa a ListView de "Tocando Agora" e adiciona a música que está tocando
+            nowPlayingList.getItems().clear();  // Limpa antes de adicionar a nova música
+            nowPlayingList.getItems().add(playlist.get(currentSongIndex).getName());  // Adiciona o nome da música
+
+            // Exibe a música nas últimas tocadas (opcional)
+            updateRecentSongs(playlist.get(currentSongIndex).getName());
+
+            // Configura a ação para a próxima música quando a atual terminar
+            mediaPlayer.setOnEndOfMedia(this::handleNextSong);
+        }
+    }
+
+
+    @FXML
+    private void handleNextSong() {
+        currentSongIndex = (currentSongIndex + 1) % playlist.size();
+        playSong();
+    }
+
+    @FXML
+    private void handlePreviousSong(ActionEvent event) {
+        currentSongIndex = (currentSongIndex - 1 + playlist.size()) % playlist.size();
+        playSong();
+    }
+
+    @FXML
+    void handleLeaveButton(ActionEvent event) { //isso funciona
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/Login.fxml"));
+            Parent loginScreen = loader.load();
+
+            Scene loginScene = new Scene(loginScreen, 800, 600);
+
+            String css = getClass().getResource("/com/example/demo/styles.css").toExternalForm();
+            loginScene.getStylesheets().add(css);
+
+            javafx.stage.Stage stage = (javafx.stage.Stage) leaveButton.getScene().getWindow();
+            stage.setScene(loginScene);
+            stage.setTitle("Spotify Application");
+
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void handleProfileButton(ActionEvent event) { // isso funciona
+        try {
+            // Carregar o arquivo FXML da tela de perfil
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/profile.fxml"));
+            Parent root = loader.load(); // Carrega o conteúdo do FXML
+
+            // Criar a nova cena e configurar a janela
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace(); // Tratar exceções caso o arquivo FXML não seja encontrado ou haja outro erro
+        }
+    }
+
+    private void updateRecentSongs(String songName) {
+        if (recentSongsList != null) {
+            recentSongsList.getItems().add(0, songName);  // Evita a exceção de NullPointer
+            if (recentSongsList.getItems().size() > 3) {
+                recentSongsList.getItems().remove(3);
             }
         } else {
-            resultListView.getItems().add("Nenhum resultado encontrado.");
+            System.out.println("recentSongsList está null! Verifique o FXML.");
         }
     }
 
-    // Lógica do botão "Home"
-    @FXML
-    private void handleHomeButtonClick() {
-        contentLabel.setText("Bem-vindo à Home!");
-        // Aqui você pode implementar a navegação para a tela principal
-    }
 
-    // Lógica do botão "Sua Biblioteca"
-    @FXML
-    private void handleLibraryButtonClick() {
-        contentLabel.setText("Sua Biblioteca");
-        // Aqui você pode exibir as músicas e playlists do usuário - TODO: esse método existe também;
-       //updateLibraryView(playlistController.findAllPlaylists());
-    }
-
-    private void updateLibraryView(String[] libraryItems) {
-        resultListView.getItems().clear();
-        if (libraryItems != null && libraryItems.length > 0) {
-            for (String item : libraryItems) {
-                resultListView.getItems().add(item);
-            }
-        } else {
-            resultListView.getItems().add("Sua biblioteca está vazia.");
-        }
-    }
-
-    // Lógica de criação de Podcast
-    @FXML
-    private void handleCreatePodcast() {
-        System.out.println("Criando Podcast...");
-
-        //TODO: o méotodo de criar podcast ja existe(saveSong), basta selecionar o type do Song como podcast
-
-        // Exemplo de criação de um Podcast
-//        // Supondo que o PodcastController tenha um método 'createPodcast'
-//
-//        // Abre uma tela de criação de podcast (pode ser uma tela FXML)
-//        TextInputDialog podcastDialog = new TextInputDialog();
-//        podcastDialog.setTitle("Criar Podcast");
-//        podcastDialog.setHeaderText("Insira o nome do seu podcast");
-//        podcastDialog.setContentText("Nome:");
-//
-//        Optional<String> result = podcastDialog.showAndWait();
-//        result.ifPresent(podcastName -> {
-//            // Suponha que o PodcastController tenha um método para criar o podcast
-//            podcastController.savePodcast(podcastName);
-//            contentLabel.setText("Podcast '" + podcastName + "' criado com sucesso!");
-//        });
-    }
-
-    // Lógica de criação de Playlist
-    @FXML
-    private void handleCreatePlaylist() {
-        System.out.println("Criando Playlist...");
-
-        // Exibe um diálogo para o usuário inserir o nome da playlist
-        TextInputDialog playlistDialog = new TextInputDialog();
-        playlistDialog.setTitle("Criar Playlist");
-        playlistDialog.setHeaderText("Insira o nome da sua playlist");
-        playlistDialog.setContentText("Nome da Playlist:");
-
-        Optional<String> playlistNameResult = playlistDialog.showAndWait();
-        playlistNameResult.ifPresent(playlistName -> {
-            // Agora, pedindo a descrição da playlist
-            TextInputDialog descriptionDialog = new TextInputDialog();
-            descriptionDialog.setTitle("Adicionar Descrição");
-            descriptionDialog.setHeaderText("Insira uma descrição para a playlist");
-            descriptionDialog.setContentText("Descrição:");
-
-            Optional<String> descriptionResult = descriptionDialog.showAndWait();
-            descriptionResult.ifPresent(description -> {
-                // Agora, associando a playlist ao usuário logado (supondo que exista um usuário)
-//                User loggedInUser = userController.getLoggedInUser(); // Método que retorna o usuário logado - preciso pegar o usuario logado? podemos fazer isso apenas pegando seu username do front e ai fazer uma busca por username.
-                // para pegar o usuario logado irei precisar de informações do front de todo jeito.
-//                if (loggedInUser != null) {
-//                    Playlist newPlaylist = new Playlist(0, playlistName, 0, description, loggedInUser);
-//
-//                    // Adicionar músicas à playlist (caso o usuário queira adicionar)
-//                    // Aqui você pode adicionar músicas à playlist, por exemplo, solicitando ao usuário
-//                    // para selecionar músicas ou pegando automaticamente da biblioteca do usuário.
-//
-//                    // Exemplo de como adicionar músicas (essa parte pode ser expandida conforme necessário)
-//                    List<Song> userSongs = songController.getUserSongs(loggedInUser); // Método que retorna músicas do usuário - musicas do usuario ou as playlists do usuario?
-//                    if (!userSongs.isEmpty()) {
-//                        newPlaylist.getSongs().addAll(userSongs);
-//                    }
-//
-//                    // Chamando o método do PlaylistController para salvar a playlist
-//                    playlistController.savePlaylist(newPlaylist);
-//                    contentLabel.setText("Playlist '" + playlistName + "' criada com sucesso!");
-//                } else {
-//                    contentLabel.setText("Erro: Nenhum usuário logado.");
-//                }
-            });
-        });
-    }
-
-
-
-    // Lógica para interagir com as playlists recomendadas
-    @FXML
-    private void handlePlaylistImageClick(MouseEvent event) {
-        ImageView clickedImage = (ImageView) event.getSource();
-        System.out.println("Playlist clicada: " + clickedImage.getId());
-        // Aqui você pode abrir uma tela de detalhes ou tocar a playlist clicada
-        //playlistController.playPlaylist(clickedImage.getId());
-    }
-
-    // Atualizar a lista "Tocando Agora"
-    public void updateNowPlaying(String songName) {
-        currentSongText.setText("Tocando agora: " + songName);
-    }
-
-    // Controlador do player de música
-    private static class MusicPlayerController {
-
-        public void initializePlayer() {
-            System.out.println("Inicializando o Player de Música...");
-        }
-
-        public void play() {
-            System.out.println("Tocando a música...");
-            // Lógica para tocar música
-        }
-
-        public void pause() {
-            System.out.println("Pausando a música...");
-            // Lógica para pausar a música
-        }
-
-        public void skip() {
-            System.out.println("Pulando para a próxima música...");
-            // Lógica para pular para a próxima música
-        }
-    }
-
-    // Métodos para controlar a navegação
-    public void playMusic(String songId) {
-        musicPlayerController.play();
-        updateNowPlaying("Tocando: " + songId);
-    }
-
-    public void pauseMusic() {
-        musicPlayerController.pause();
-        currentSongText.setText("Música pausada");
-    }
-
-    public void skipMusic() {
-        musicPlayerController.skip();
-        currentSongText.setText("Música pulada");
-    }
 }
