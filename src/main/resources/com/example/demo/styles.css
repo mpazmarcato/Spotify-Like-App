@@ -164,3 +164,83 @@
     -fx-padding: 5px;
 }
 
+/* styles.css */
+
+/* Estilo geral do contêiner */
+.profile-container {
+    -fx-padding: 20;
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #dcdcdc;
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+/* Título do perfil */
+.profile-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+/* Foto do perfil */
+#profilePicture {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 2);
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+}
+
+/* Botões gerais */
+.profile-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-background-color: #0078d7;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.profile-button:hover {
+    -fx-background-color: #005a9e;
+}
+
+/* Botão de logout */
+.logout-button {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-background-color: #d9534f;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.logout-button:hover {
+    -fx-background-color: #c9302c;
+}
+
+/* Labels de informações */
+.profile-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #555555;
+}
+
+.profile-value {
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+}
+
+/* Informações do usuário */
+.profile-info {
+    -fx-padding: 10;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dcdcdc;
+    -fx-border-width: 1;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 1);
+}
