@@ -301,3 +301,35 @@
 #timeSlider .thumb {
     -fx-background-color: #0078d7; /* Cor do "thumb" */
 }
+
+.playlist-container {
+    -fx-background-color: #1db954; /* Exemplo de cor do Spotify */
+    -fx-padding: 20px;
+    -fx-border-radius: 10px;
+}
+
+.playlist-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-fill: white;
+}
+
+.playlist-field {
+    -fx-pref-width: 300px;
+    -fx-padding: 10px;
+    -fx-background-color: white;
+    -fx-border-radius: 5px;
+}
+
+.playlist-button {
+    -fx-pref-width: 300px;
+    -fx-padding: 10px;
+    -fx-background-color: #1db954;
+    -fx-text-fill: white;
+    -fx-border-radius: 5px;
+}
+
+.feedback-text {
+    -fx-fill: white;
+    -fx-font-size: 14px;
+}

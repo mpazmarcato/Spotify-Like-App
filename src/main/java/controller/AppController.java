@@ -109,7 +109,7 @@ public class AppController {
     @FXML
     private Label contentLabel;
 
-    private ObservableList<String> nowPlayingSongs = FXCollections.observableArrayList();
+    private final ObservableList<String> nowPlayingSongs = FXCollections.observableArrayList();
 
 
     private List<File> playlist;
@@ -119,12 +119,12 @@ public class AppController {
 
     @FXML
     private void initialize() {
-        nowPlayingList.setItems(nowPlayingSongs);
+        nowPlayingList = new ListView<>();
+        ObservableList<String> items = FXCollections.observableArrayList("Item 1", "Item 2", "Item 3");
+        nowPlayingList.setItems(items);
         loadPlaylists();
 
-        // Check if mediaPlayer is null before accessing currentTimeProperty
         if (mediaPlayer != null) {
-            // Atualiza a música no slider sem interrupções excessivas.
             timeSlider.valueChangingProperty().addListener((observable, oldValue, newValue) -> {
                 isSliderChanging = newValue;
                 if (!isSliderChanging && mediaPlayer != null) {
@@ -132,14 +132,12 @@ public class AppController {
                 }
             });
 
-            // Quando o valor do slider mudar, ajusta a música sem interromper a reprodução.
             timeSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
                 if (mediaPlayer != null && !isSliderChanging) {
                     mediaPlayer.seek(Duration.seconds(newValue.doubleValue()));
                 }
             });
 
-            // Corrigindo a atualização do tempo de reprodução
             mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
                 if (mediaPlayer != null && !isSliderChanging) {
                     double currentTime = mediaPlayer.getCurrentTime().toSeconds();
@@ -165,19 +163,6 @@ public class AppController {
                     break;
                 }
             }
-        }
-    }
-
-    @FXML
-    private void toggleMusic() {
-        if (mediaPlayer == null) return;
-
-        if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
-            mediaPlayer.pause();
-            toggleButton.setText("Play");
-        } else {
-            mediaPlayer.play();
-            toggleButton.setText("Pause");
         }
     }
 
@@ -210,7 +195,6 @@ public class AppController {
             return;
         }
 
-        // Stop and dispose of the previous mediaPlayer if it exists
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.dispose();
@@ -231,15 +215,12 @@ public class AppController {
                             toggleButton.setText("Play/Pause");
                             updateRecentSongs(currentSong.getName());
 
-                            // Update now playing list
-                            nowPlayingSongs.clear();  // Clear the list before adding new song
-                            nowPlayingSongs.add("Now Playing: " + currentSong.getName());  // Add the current song name
+                            nowPlayingSongs.clear();
+                            nowPlayingSongs.add("Now Playing: " + currentSong.getName());
 
-                            // Bind the now playing list to the ListView
                             nowPlayingList.setItems(nowPlayingSongs);
                         });
 
-                        // Add the currentTimeProperty listener here
                         mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
                             if (mediaPlayer != null && !isSliderChanging) {
                                 double currentTime = mediaPlayer.getCurrentTime().toSeconds();
@@ -268,11 +249,6 @@ public class AppController {
         new Thread(loadSongTask).start(); // Carrega a música em uma thread separada
     }
 
-
-
-
-
-
     private void updateMusicProgress() {
         mediaPlayer.currentTimeProperty().addListener(observable -> {
             if (mediaPlayer != null && !isSliderChanging) {
@@ -294,37 +270,6 @@ public class AppController {
             }
         } else {
             System.out.println("recentSongsList está null! Verifique o FXML.");
-        }
-    }
-
-    @FXML
-    private void openFileChooser(ActionEvent event) {
-        Window ownerWindow = ((Control) event.getSource()).getScene().getWindow();
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Adicionar arquivo de áudio");
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Arquivos de áudio", "*.mp3", "*.wav", "*.flac")
-        );
-        File selectedFile = fileChooser.showOpenDialog(ownerWindow);
-        if (selectedFile != null && isPlayableMedia(selectedFile)) {
-            playlist.add(selectedFile);
-            songList.getItems().add(selectedFile.getName());
-        }
-    }
-
-    @FXML
-    private void openFolderChooser(ActionEvent event) {
-        Window ownerWindow = ((Control) event.getSource()).getScene().getWindow();
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Adicionar diretório de músicas");
-        File selectedDir = directoryChooser.showDialog(ownerWindow);
-        if (selectedDir != null && selectedDir.isDirectory()) {
-            for (File file : selectedDir.listFiles()) {
-                if (file.isFile() && isPlayableMedia(file)) {
-                    playlist.add(file);
-                    songList.getItems().add(file.getName());
-                }
-            }
         }
     }
 
@@ -393,7 +338,6 @@ public class AppController {
 
     @FXML
     private void handleDeleteSongButtonClick() {
-        // Obtém a música selecionada na lista de músicas
         String selectedSongName = songList.getSelectionModel().getSelectedItem();
 
         if (selectedSongName == null) {
@@ -401,16 +345,13 @@ public class AppController {
             return;
         }
 
-        // Pergunta se o usuário tem certeza que quer deletar a música
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Confirmação");
         confirmAlert.setHeaderText("Você tem certeza que deseja excluir a música?");
         confirmAlert.setContentText("A música será removida da playlist.");
 
-        // Se o usuário confirmar, deletamos a música
         Optional<ButtonType> result = confirmAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            // Encontra a música na playlist e remove
             File songToDelete = null;
             for (File song : playlist) {
                 if (song.getName().equals(selectedSongName)) {
@@ -420,21 +361,11 @@ public class AppController {
             }
 
             if (songToDelete != null) {
-                // Remove a música da playlist
                 playlist.remove(songToDelete);
 
-                // Remove a música da lista na interface
                 songList.getItems().remove(selectedSongName);
 
                 showAlert("Música excluída", "A música foi excluída com sucesso.");
-
-//                // Excluir o arquivo fisicamente (opcional)
-//                boolean deleted = songToDelete.delete();
-//                if (deleted) {
-//                    showAlert("Música excluída", "A música foi excluída com sucesso.");
-//                } else {
-//                    showAlert("Erro", "Não foi possível excluir o arquivo da música.");
-//                }
             }
         }
     }
@@ -480,15 +411,27 @@ public class AppController {
     }
 
     @FXML
-    void handleCreatePlaylist(ActionEvent event) {
-        System.out.println("Função Criar Playlist em desenvolvimento.");
+    private void handleCreatePlaylist(ActionEvent event) { // aqui tem q editar/chamar/criar as funções para salvar o nome da playlist e salvar na aba Sua Biblioteca
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/create_playlist.fxml"));
+            Parent root = loader.load(); // Carrega a tela de criar playlist
+
+            Scene scene = new Scene(root);
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+// olha aq em cima e abaixo
     @FXML
     void handleLibraryButton(ActionEvent event) {
         System.out.println("Library button clicked!");
     }
 
+    // n sei oq fzr com essa
     @FXML
     void handleCreatePodcast(ActionEvent event) {
         System.out.println("Create Podcast button clicked!");
