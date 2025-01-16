@@ -26,7 +26,7 @@
                 <Button onAction="#handleLibraryButton" styleClass="nav-button" text="Sua Biblioteca" />
                 <Button onAction="#handleCreatePodcast" styleClass="nav-button" text="Criar Podcast" />
                 <Button onAction="#handleCreatePlaylist" styleClass="nav-button" text="Criar Playlist" />
-                <Button fx:id="leaveButton" text="Sair" styleClass="nav-button" onAction="#handleLeaveButton"/>
+                <Button fx:id="leaveButton" onAction="#handleLeaveButton" styleClass="nav-button" text="Sair" />
             </children>
         </VBox>
     </left>
@@ -37,10 +37,6 @@
             <children>
                 <!-- Section for Playlists -->
                 <VBox alignment="CENTER" fillWidth="false" prefHeight="0.0" prefWidth="164.0" spacing="10.0">
-                    <children>
-                        <Label text="Minhas playlists" />
-                        <Button mnemonicParsing="false" text="Nova Playlist" />
-                    </children>
                     <padding>
                         <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
                     </padding>
@@ -54,7 +50,7 @@
                                 <Font size="16.0" />
                             </font>
                         </Label>
-                        <ListView fx:id="songList" prefHeight="386.0" prefWidth="164.0" onMouseClicked="#handleSongSelection" />
+                        <ListView fx:id="songList" onMouseClicked="#handleSongSelection" prefHeight="181.0" prefWidth="864.0" />
                     </children>
                     <padding>
                         <Insets top="20.0" />
@@ -72,7 +68,7 @@
                                 <Font size="16.0" />
                             </font>
                         </Label>
-                        <ListView fx:id="recentSongsList" prefHeight="150.0" prefWidth="164.0" />
+                        <ListView fx:id="recentSongsList" prefHeight="79.0" prefWidth="864.0" />
                     </children>
                     <padding>
                         <Insets top="20.0" />
@@ -81,7 +77,7 @@
 
                 <!-- Now Playing Section -->
                 <Text styleClass="section-title" text="Tocando Agora" />
-                <ListView fx:id="nowPlayingList" />
+                <ListView fx:id="nowPlayingList" prefHeight="27.0" prefWidth="864.0" />
             </children>
         </VBox>
     </center>
@@ -90,9 +86,9 @@
     <bottom>
         <HBox alignment="CENTER" spacing="10" styleClass="music-player">
             <children>
-                <Button text="&lt;&lt;" onAction="#handlePreviousSong" />
-                <Button fx:id="toggleButton" text="Play/Pause" onAction="#handleTogglePlayPause" />
-                <Button text="&gt;&gt;" onAction="#handleNextSong" />
+                <Button onAction="#handlePreviousSong" text="&lt;&lt;" />
+                <Button fx:id="toggleButton" onAction="#handleTogglePlayPause" text="Play/Pause" />
+                <Button onAction="#handleNextSong" text="&gt;&gt;" />
                 <Label fx:id="timeLabel" text="--:--" />
                 <Slider fx:id="timeSlider" HBox.hgrow="ALWAYS" />
             </children>
