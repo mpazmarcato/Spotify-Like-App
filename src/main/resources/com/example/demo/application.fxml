@@ -89,7 +89,7 @@
                 <Button onAction="#handlePreviousSong" text="&lt;&lt;" />
                 <Button fx:id="toggleButton" onAction="#handleTogglePlayPause" text="Play/Pause" />
                 <Button onAction="#handleNextSong" text="&gt;&gt;" />
-                <Label fx:id="timeLabel" text="--:--" />
+                <Label fx:id="timeLabel" text="00:00"/>
                 <Slider fx:id="timeSlider" HBox.hgrow="ALWAYS" />
             </children>
             <padding>
