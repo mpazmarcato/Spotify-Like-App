@@ -14,6 +14,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
@@ -420,22 +421,54 @@ public class AppController {
     }
 
     @FXML
-    private void handleCreatePlaylist(ActionEvent event) { // aqui tem q editar/chamar/criar as funções para salvar o nome da playlist e salvar na aba Sua Biblioteca
+    private void handleCreatePlaylist(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/create_playlist.fxml"));
-            Parent root = loader.load(); // Carrega a tela de criar playlist
+            Parent root = loader.load();
 
+            // Criar o diálogo principal para criação da playlist
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle("Create New Playlist");
             dialog.setHeaderText("Enter playlist details: ");
             dialog.getDialogPane().setContent(root);
-
             dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+            // Adicionar ListView para seleção de músicas no FXML
+            ListView<Song> availableSongsListView = new ListView<>();
+            availableSongsListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+            // Carregar todas as músicas disponíveis
+            List<Song> allSongs = songController.findAllSongs();
+            availableSongsListView.getItems().addAll(allSongs);
+
+            // Customizar como as músicas são exibidas na ListView
+            availableSongsListView.setCellFactory(param -> new ListCell<Song>() {
+                @Override
+                protected void updateItem(Song song, boolean empty) {
+                    super.updateItem(song, empty);
+                    if (empty || song == null) {
+                        setText(null);
+                    } else {
+                        setText(song.getTitle() + " - " + song.getArtist());
+                    }
+                }
+            });
+
+            // Adicionar a ListView ao diálogo
+            VBox content = new VBox(10); // 10 é o espaçamento
+            content.getChildren().addAll(
+                    new Label("Title:"),
+                    playlistTitleField,
+                    new Label("Description:"),
+                    playlistDescriptionArea,
+                    new Label("Select Songs:"),
+                    availableSongsListView
+            );
+            dialog.getDialogPane().setContent(content);
 
             Optional<ButtonType> result = dialog.showAndWait();
 
             if (result.isPresent() && result.get() == ButtonType.OK) {
-                // Get values from the text fields
                 String title = playlistTitleField.getText();
                 String description = playlistDescriptionArea.getText();
 
@@ -444,18 +477,23 @@ public class AppController {
                     return;
                 }
 
-                // Create new Playlist object
+                // Criar nova Playlist
                 Playlist newPlaylist = new Playlist();
                 newPlaylist.setTitle(title);
                 newPlaylist.setDescription(description);
 
-                // Save playlist using the controller
+                // Adicionar as músicas selecionadas à playlist
+                List<Song> selectedSongs = availableSongsListView.getSelectionModel().getSelectedItems();
+                for (Song song : selectedSongs) {
+                    newPlaylist.getSongs().add(song);
+                }
+
+                // Salvar playlist com as músicas
                 Optional<Playlist> savedPlaylist = playlistController.savePlaylist(newPlaylist);
 
                 if (savedPlaylist.isPresent()) {
-                    // Update the playlist list in your UI
                     updatePlaylistDisplay();
-                    showAlert("Success", "Playlist created successfully!");
+                    showAlert("Success", "Playlist created successfully with " + selectedSongs.size() + " songs!");
                 } else {
                     showAlert("Error", "Failed to create playlist. Please try again.");
                 }
@@ -473,13 +511,12 @@ public class AppController {
     }
 
     private void updatePlaylistDisplay() {
-        // Clear existing items
         playlistList.getItems().clear();
-
-        // Get all playlists and add them to the ListView
         List<Playlist> playlists = playlistController.findAllPlaylists();
         for (Playlist playlist : playlists) {
-            playlistList.getItems().add(playlist.getTitle());
+            // Você pode customizar como quer mostrar a playlist
+            String displayText = playlist.getTitle() + " (" + playlist.getSongs().size() + " songs)";
+            playlistList.getItems().add(displayText);
         }
     }
 
