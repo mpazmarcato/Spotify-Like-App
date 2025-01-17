@@ -19,15 +19,15 @@ import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.*;
 import repositories.*;
 import util.UserSession;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -40,6 +40,7 @@ import javafx.util.Duration;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
+import javax.swing.text.html.Option;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +58,8 @@ public class AppController {
     private final SongRepository songRepository = new SongRepository();
     private final SongService songService = new SongService(songRepository);
     private final SongController songController = new SongController(songService);
+
+    private static final Logger logger = LoggerFactory.getLogger(AppController.class);
 
     @FXML
     public Button addSongButton;
@@ -108,6 +111,12 @@ public class AppController {
 
     @FXML
     private Label contentLabel;
+
+    @FXML
+    private TextField playlistTitleField;
+
+    @FXML
+    private TextArea playlistDescriptionArea;
 
     private final ObservableList<String> nowPlayingSongs = FXCollections.observableArrayList();
 
@@ -416,12 +425,61 @@ public class AppController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/create_playlist.fxml"));
             Parent root = loader.load(); // Carrega a tela de criar playlist
 
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle("Create New Playlist");
+            dialog.setHeaderText("Enter playlist details: ");
+            dialog.getDialogPane().setContent(root);
+
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+            Optional<ButtonType> result = dialog.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                // Get values from the text fields
+                String title = playlistTitleField.getText();
+                String description = playlistDescriptionArea.getText();
+
+                if (title == null || title.trim().isEmpty()) {
+                    showAlert("Error", "Please enter a playlist title.");
+                    return;
+                }
+
+                // Create new Playlist object
+                Playlist newPlaylist = new Playlist();
+                newPlaylist.setTitle(title);
+                newPlaylist.setDescription(description);
+
+                // Save playlist using the controller
+                Optional<Playlist> savedPlaylist = playlistController.savePlaylist(newPlaylist);
+
+                if (savedPlaylist.isPresent()) {
+                    // Update the playlist list in your UI
+                    updatePlaylistDisplay();
+                    showAlert("Success", "Playlist created successfully!");
+                } else {
+                    showAlert("Error", "Failed to create playlist. Please try again.");
+                }
+            }
+
             Scene scene = new Scene(root);
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
+            logger.error("Error creating playlist: ", e);
+            showAlert("Error", "An error occurred while creating the playlist.");
             e.printStackTrace();
+        }
+    }
+
+    private void updatePlaylistDisplay() {
+        // Clear existing items
+        playlistList.getItems().clear();
+
+        // Get all playlists and add them to the ListView
+        List<Playlist> playlists = playlistController.findAllPlaylists();
+        for (Playlist playlist : playlists) {
+            playlistList.getItems().add(playlist.getTitle());
         }
     }
 
@@ -470,7 +528,7 @@ public class AppController {
     @FXML
     void handleProfileButton(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/profile.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/proofile.fxml"));
             Parent root = loader.load(); // Carrega o conteúdo do FXML
 
             Scene scene = new Scene(root);
@@ -478,7 +536,8 @@ public class AppController {
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace(); // Tratar exceções caso o arquivo FXML não seja encontrado ou haja outro erro
+            showAlert("Erro", "Não foi possível carregar a tela de perfil. Por favor, tente novamente.");
+            logger.error("Erro ao carregar a tela de perfil: ", e);
         }
     }
 
@@ -489,7 +548,7 @@ public class AppController {
             Parent loginScreen = loader.load();
 
             Scene loginScene = new Scene(loginScreen, 800, 600);
-            String css = getClass().getResource("/com/example/demo/styles.css").toExternalForm();
+            String css = Objects.requireNonNull(getClass().getResource("/com/example/demo/styles.css")).toExternalForm();
             loginScene.getStylesheets().add(css);
 
             Stage stage = (Stage) leaveButton.getScene().getWindow();
@@ -497,7 +556,7 @@ public class AppController {
             stage.setTitle("Spotify Application");
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Erro ao carregar a tela de perfil: ", e);
         }
     }
 
