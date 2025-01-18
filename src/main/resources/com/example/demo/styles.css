@@ -333,3 +333,74 @@
     -fx-fill: white;
     -fx-font-size: 14px;
 }
+
+/* Container principal */
+.playlist-container {
+    -fx-background-color: #1e1e1e; /* Fundo escuro */
+    -fx-padding: 20;
+    -fx-border-color: #333333; /* Borda escura */
+    -fx-border-width: 2;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+/* Título */
+.playlist-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff; /* Texto branco */
+}
+
+/* Rótulos */
+.playlist-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #cccccc; /* Texto cinza claro */
+}
+
+/* Campos de texto */
+.playlist-field, .playlist-area {
+    -fx-background-color: #2e2e2e; /* Fundo cinza escuro */
+    -fx-text-fill: #ffffff; /* Texto branco */
+    -fx-border-color: #444444; /* Borda cinza */
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 5;
+}
+
+/* Lista de músicas */
+.playlist-list {
+    -fx-background-color: #2e2e2e;
+    -fx-border-color: #444444;
+    -fx-text-fill: #ffffff;
+}
+
+/* Botões */
+.playlist-button {
+    -fx-background-color: #4caf50; /* Verde */
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 10 20;
+}
+
+.cancel-button {
+    -fx-background-color: #d32f2f; /* Vermelho */
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-padding: 10 20;
+}
+
+.playlist-button:hover, .cancel-button:hover {
+    -fx-opacity: 0.9;
+}
+
+.playlist-button:pressed, .cancel-button:pressed {
+    -fx-opacity: 0.8;
+}
+
+
+

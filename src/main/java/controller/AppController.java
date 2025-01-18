@@ -426,45 +426,43 @@ public class AppController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/create_playlist.fxml"));
             Parent root = loader.load();
 
-            // Criar o diálogo principal para criação da playlist
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setTitle("Create New Playlist");
-            dialog.setHeaderText("Enter playlist details: ");
-            dialog.getDialogPane().setContent(root);
-            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+            dialog.setHeaderText("Enter playlist details:");
 
-            // Adicionar ListView para seleção de músicas no FXML
+            // Initialize fields if not from FXML
+            TextField playlistTitleField = new TextField();
+            TextArea playlistDescriptionArea = new TextArea();
+
             ListView<Song> availableSongsListView = new ListView<>();
             availableSongsListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-
-            // Carregar todas as músicas disponíveis
             List<Song> allSongs = songController.findAllSongs();
             availableSongsListView.getItems().addAll(allSongs);
 
-            // Customizar como as músicas são exibidas na ListView
             availableSongsListView.setCellFactory(param -> new ListCell<Song>() {
                 @Override
                 protected void updateItem(Song song, boolean empty) {
                     super.updateItem(song, empty);
-                    if (empty || song == null) {
-                        setText(null);
-                    } else {
-                        setText(song.getTitle() + " - " + song.getArtist());
-                    }
+                    setText((empty || song == null) ? null : song.getTitle() + " - " + song.getArtist());
                 }
             });
 
-            // Adicionar a ListView ao diálogo
-            VBox content = new VBox(10); // 10 é o espaçamento
-            content.getChildren().addAll(
-                    new Label("Title:"),
-                    playlistTitleField,
-                    new Label("Description:"),
-                    playlistDescriptionArea,
-                    new Label("Select Songs:"),
-                    availableSongsListView
-            );
+            VBox content = new VBox(10);
+            if (playlistTitleField != null && playlistDescriptionArea != null) {
+                content.getChildren().addAll(
+                        new Label("Title:"),
+                        playlistTitleField,
+                        new Label("Description:"),
+                        playlistDescriptionArea,
+                        new Label("Select Songs:"),
+                        availableSongsListView
+                );
+            } else {
+                throw new IllegalStateException("Required UI components are null.");
+            }
+
             dialog.getDialogPane().setContent(content);
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
             Optional<ButtonType> result = dialog.showAndWait();
 
@@ -477,20 +475,14 @@ public class AppController {
                     return;
                 }
 
-                // Criar nova Playlist
                 Playlist newPlaylist = new Playlist();
                 newPlaylist.setTitle(title);
                 newPlaylist.setDescription(description);
 
-                // Adicionar as músicas selecionadas à playlist
                 List<Song> selectedSongs = availableSongsListView.getSelectionModel().getSelectedItems();
-                for (Song song : selectedSongs) {
-                    newPlaylist.getSongs().add(song);
-                }
+                newPlaylist.getSongs().addAll(selectedSongs);
 
-                // Salvar playlist com as músicas
                 Optional<Playlist> savedPlaylist = playlistController.savePlaylist(newPlaylist);
-
                 if (savedPlaylist.isPresent()) {
                     updatePlaylistDisplay();
                     showAlert("Success", "Playlist created successfully with " + selectedSongs.size() + " songs!");
@@ -498,17 +490,37 @@ public class AppController {
                     showAlert("Error", "Failed to create playlist. Please try again.");
                 }
             }
-
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
         } catch (IOException e) {
             logger.error("Error creating playlist: ", e);
             showAlert("Error", "An error occurred while creating the playlist.");
-            e.printStackTrace();
+        } catch (IllegalStateException e) {
+            logger.error("Null UI component: ", e);
+            showAlert("Error", e.getMessage());
         }
     }
+
+    @FXML
+    private void handleCancel(ActionEvent event) {
+        try {
+            // Carregar a tela inicial
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/application.fxml"));
+            Parent homeScreen = loader.load();
+
+            // Configurar a cena e o palco
+            Scene homeScene = new Scene(homeScreen, 800, 600);
+            String css = Objects.requireNonNull(getClass().getResource("/com/example/demo/styles.css")).toExternalForm();
+            homeScene.getStylesheets().add(css);
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.setScene(homeScene);
+            stage.setTitle("Tela Inicial");
+            stage.show();
+        } catch (IOException e) {
+            showAlert("Erro", "Não foi possível carregar a tela inicial. Por favor, tente novamente.");
+            logger.error("Erro ao carregar a tela inicial: ", e);
+        }
+    }
+
 
     private void updatePlaylistDisplay() {
         playlistList.getItems().clear();
@@ -565,7 +577,7 @@ public class AppController {
     @FXML
     void handleProfileButton(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/proofile.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/profile.fxml"));
             Parent root = loader.load(); // Carrega o conteúdo do FXML
 
             Scene scene = new Scene(root);
