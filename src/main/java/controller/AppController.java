@@ -1,4 +1,3 @@
-
 package controller;
 
 import exceptions.LoginException;
@@ -21,6 +20,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.*;
@@ -47,6 +47,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 
 public class AppController {
@@ -104,6 +105,9 @@ public class AppController {
     private Button toggleButton;
 
     @FXML
+    private Button backButton;
+
+    @FXML
     private Label timeLabel;
 
     @FXML
@@ -123,6 +127,12 @@ public class AppController {
 
     @FXML
     private TextArea playlistDescriptionArea;
+
+    private Stage primaryStage;  // A janela principal da aplicação
+
+    public void setPrimaryStage(Stage stage) {
+        this.primaryStage = stage;
+    }
 
     private final ObservableList<String> nowPlayingSongs = FXCollections.observableArrayList();
 
@@ -333,7 +343,7 @@ public class AppController {
                 // Verifica se a música já está na playlist
                 if (!playlist.contains(selectedFile)) {
                     playlist.add(selectedFile);
-                    songList.getItems().add(selectedFile.getName());
+                    songList.getItems().add(selectedFile.getName()); // Aqui, você adiciona o nome da música, não o objeto File
                     showAlert("Música adicionada", "A música foi adicionada à playlist com sucesso.");
                 } else {
                     showAlert("Erro", "Essa música já está na playlist.");
@@ -343,7 +353,6 @@ public class AppController {
             }
         }
     }
-
 
     @FXML
     private void handleDeleteSongButtonClick() {
@@ -371,13 +380,12 @@ public class AppController {
 
             if (songToDelete != null) {
                 playlist.remove(songToDelete);
-
-                songList.getItems().remove(selectedSongName);
-
+                songList.getItems().remove(selectedSongName); // Aqui, remove o nome da música
                 showAlert("Música excluída", "A música foi excluída com sucesso.");
             }
         }
     }
+
 
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -391,7 +399,6 @@ public class AppController {
     private void handleCreatePlaylist(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/create_playlist.fxml"));
-            //loader.setController(this);
             Parent root = loader.load();
 
             Dialog<ButtonType> dialog = new Dialog<>();
@@ -404,20 +411,18 @@ public class AppController {
             ListView<Song> availableSongsListView = new ListView<>();
             availableSongsListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-            // Adiciona as músicas da songList à lista de músicas disponíveis
+            // Adiciona as músicas disponíveis à lista
             ObservableList<Song> allSongs = FXCollections.observableArrayList();
             for (File file : playlist) {
-                // Verifica se o arquivo é válido e cria a instância de Song
                 if (isPlayableMedia(file)) {
                     Song song = new Song();
-                    song.setTitle(file.getName()); // Você pode ajustar esse método conforme a estrutura de Song
+                    song.setTitle(file.getName()); // Adicionando o nome do arquivo como título
                     song.setArtist("Unknown Artist"); // Ajuste conforme necessário
                     allSongs.add(song);
                 }
             }
 
-            // Preenche a ListView com as músicas disponíveis
-            availableSongsListView.getItems().addAll(allSongs);
+            availableSongsListView.setItems(allSongs);
 
             availableSongsListView.setCellFactory(param -> new ListCell<Song>() {
                 @Override
@@ -455,9 +460,11 @@ public class AppController {
                 newPlaylist.setTitle(title);
                 newPlaylist.setDescription(description);
 
+                // Adiciona músicas selecionadas à nova playlist
                 List<Song> selectedSongs = availableSongsListView.getSelectionModel().getSelectedItems();
                 newPlaylist.getSongs().addAll(selectedSongs);
 
+                // Salva a playlist
                 Optional<Playlist> savedPlaylist = playlistController.savePlaylist(newPlaylist);
                 if (savedPlaylist.isPresent()) {
                     updatePlaylistDisplay();
@@ -465,6 +472,7 @@ public class AppController {
                 } else {
                     showAlert("Error", "Failed to create playlist. Please try again.");
                 }
+
             }
         } catch (IOException e) {
             logger.error("Error creating playlist: ", e);
@@ -473,26 +481,26 @@ public class AppController {
     }
 
 
+
+
     @FXML
     private void handleCancel(ActionEvent event) {
         try {
+            // Carrega a próxima tela a partir do arquivo FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/application.fxml"));
-            Parent homeScreen = loader.load();
+            Parent root = loader.load();
 
-            Scene homeScene = new Scene(homeScreen, 800, 600);
-            String css = Objects.requireNonNull(getClass().getResource("/com/example/demo/styles.css")).toExternalForm();
-            homeScene.getStylesheets().add(css);
-
+            // Obtém o Stage a partir do evento
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(homeScene);
-            stage.setTitle("Tela Inicial");
+
+            // Configura a nova cena no Stage existente
+            stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
-            showAlert("Erro", "Não foi possível carregar a tela inicial. Por favor, tente novamente.");
-            logger.error("Erro ao carregar a tela inicial: ", e);
+            logger.error("Erro ao carregar a tela principal: ", e);
+            showAlert("Erro", "Não foi possível carregar a tela principal. Por favor, tente novamente.");
         }
     }
-
 
     private void updatePlaylistDisplay() {
         if (playlistList == null) {
@@ -500,8 +508,8 @@ public class AppController {
             return;
         }
 
-        playlistList.getItems().clear(); // Clear existing items
-        List<Playlist> playlists = playlistController.findAllPlaylists(); // Fetch playlists
+        playlistList.getItems().clear(); // Limpa os itens existentes
+        List<Playlist> playlists = playlistController.findAllPlaylists(); // Obtém todas as playlists
         if (playlists == null) {
             System.err.println("playlists are null. Check the data source.");
             return;
@@ -509,58 +517,28 @@ public class AppController {
 
         for (Playlist playlist : playlists) {
             String displayText = playlist.getTitle() + " (" + playlist.getSongs().size() + " songs)";
-            playlistList.getItems().add(displayText); // Add playlists to the ListView
+            playlistList.getItems().add(displayText); // Adiciona playlists à ListView
         }
     }
-
-
-//    @FXML
-//    void handleLibraryButton(ActionEvent event) {
-//        try {
-//            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/library.fxml"));
-//            Parent root = loader.load();
-//
-//            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-//            Scene scene = new Scene(root);
-//            stage.setScene(scene);
-//            stage.show();
-//
-//            ListView<String> playlistListView = (ListView<String>) scene.lookup("#playlistList");
-//            ObservableList<String> playlists = FXCollections.observableArrayList();
-//
-//            List<Playlist> playlistData = playlistController.findAllPlaylists();
-//            for (Playlist playlist : playlistData) {
-//                playlists.add(playlist.getTitle());  // Add playlist titles to the ListView
-//            }
-//
-//            playlistListView.setItems(playlists);
-//
-//        } catch (IOException e) {
-//            showAlert("Erro", "Não foi possível carregar a biblioteca. Por favor, tente novamente.");
-//            logger.error("Erro ao carregar a biblioteca: ", e);
-//        }
-//    }
 
     @FXML
     private void handleLibraryButton(ActionEvent event) {
         try {
-            // Carrega o FXML da biblioteca
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/library.fxml"));
             Parent root = loader.load();
 
-            // Cria e configura a nova janela
             Stage libraryStage = new Stage();
             libraryStage.setTitle("Your Playlists");
             libraryStage.setScene(new Scene(root, 600, 400));
             libraryStage.show();
 
-            // Obtém os componentes da interface
             ListView<Playlist> playlistListView = (ListView<Playlist>) root.lookup("#playlistListView");
             Label descriptionLabel = (Label) root.lookup("#descriptionLabel");
             ListView<String> songsListView = (ListView<String>) root.lookup("#songsListView");
 
             // Obtém as playlists criadas
             ObservableList<Playlist> playlists = FXCollections.observableArrayList(playlistController.findAllPlaylists());
+
             playlistListView.setItems(playlists);
 
             // Configura o ListView de playlists
@@ -576,17 +554,37 @@ public class AppController {
             playlistListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
                 if (newSelection != null) {
                     descriptionLabel.setText(newSelection.getDescription());
-                    songsListView.setItems(newSelection.getSongs().stream()
-                            .map(song -> song.getTitle() + " - " + song.getArtist())
-                            .collect(FXCollections::observableArrayList, ObservableList::add, ObservableList::addAll));
+
+                    // Aqui você já tem as músicas adicionadas à playlist, então basta extrair os títulos
+                    List<String> songTitles = new ArrayList<>();
+                    for (Song song : newSelection.getSongs()) {
+                        songTitles.add(song.getTitle()); // Adiciona o título da música à lista
+                    }
+
+                    // Atualiza a ListView de músicas
+                    songsListView.setItems(FXCollections.observableArrayList(songTitles));
+                } else {
+                    descriptionLabel.setText("");
+                    songsListView.setItems(FXCollections.observableArrayList());
                 }
             });
+
 
         } catch (IOException e) {
             logger.error("Error opening Library: ", e);
             showAlert("Error", "An error occurred while opening the Library.");
         }
     }
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -666,37 +664,6 @@ public class AppController {
         Preferences prefs = Preferences.userNodeForPackage(AppController.class);
         prefs.putInt("currentSongIndex", songIndex);
         prefs.putDouble("currentSongPosition", position);
-    }
-
-
-    // Carregar as playlists para a ListView
-    public void loadLibrary() {
-        ObservableList<String> playlistTitles = FXCollections.observableArrayList();
-
-        // Suponha que você tenha um método que retorna todas as playlists como strings (títulos)
-        List<Playlist> playlists = playlistController.findAllPlaylists();
-
-        // Adicionar os títulos das playlists na ObservableList
-        for (Playlist playlist : playlists) {
-            playlistTitles.add(playlist.getTitle()); // Adiciona o título da playlist
-        }
-
-        // Definir os itens da ListView com os títulos das playlists
-        playlistList.setItems(playlistTitles);
-
-        // Definir o comportamento ao selecionar uma playlist
-        playlistList.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                String selectedTitle = playlistList.getSelectionModel().getSelectedItem();
-                openPlaylistDetails(selectedTitle);
-            }
-        });
-    }
-
-    // Exemplo de método para abrir os detalhes de uma playlist
-    private void openPlaylistDetails(String playlistTitle) {
-        // Aqui você pode abrir a tela de detalhes da playlist ou realizar outras ações
-        System.out.println("Abrindo detalhes da playlist: " + playlistTitle);
     }
 
 }

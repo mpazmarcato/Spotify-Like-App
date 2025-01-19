@@ -46,7 +46,8 @@ public class PlaylistRepository {
 
     public List<Playlist> findAllPlaylists() {
         try (Session session = HibernateUtil.getSession()) {
-            return session.createQuery("SELECT u FROM model.Playlist u", Playlist.class).list();
+            String hql = "SELECT p FROM model.Playlist p LEFT JOIN FETCH p.songs";
+            return session.createQuery(hql, Playlist.class).list();
         } catch (Exception e) {
             logger.error("Error getting all playlists", e);
             return null;

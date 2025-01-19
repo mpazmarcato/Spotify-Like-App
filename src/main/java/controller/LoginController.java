@@ -27,9 +27,9 @@ public class LoginController {
     private final UserController userController = new UserController(userService);
 
     @FXML
-    private Pane loginPane; // Painel para a tela de login
+    private Pane loginPane;
     @FXML
-    private Pane registerPane; // Painel para a tela de registro
+    private Pane registerPane;
     @FXML
     private TextField usernameField;
     @FXML
@@ -92,14 +92,12 @@ public class LoginController {
 
     @FXML
     public void handleRegisterSwitch() {
-        // Alterna para a tela de registro
         loginPane.setVisible(false);
         registerPane.setVisible(true);
     }
 
     @FXML
     public void handleBackToLogin() {
-        // Alterna de volta para a tela de login
         registerPane.setVisible(false);
         loginPane.setVisible(true);
     }
