@@ -5,26 +5,20 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.control.Button?>
-
 <?import javafx.scene.layout.HBox?>
-<VBox xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AppController" spacing="15">
-    <!-- Playlist Section Title -->
-    <Label text="Suas Playlists" styleClass="section-title">
-        <font>
-            <Font size="18.0" />
-        </font>
-    </Label>
 
-    <!-- Playlists List -->
-    <ListView fx:id="playlistList" prefHeight="300.0" prefWidth="864.0">
-        <!-- Definindo padding com a sintaxe correta -->
-        <padding>
-            <Insets top="20.0" left="20.0" right="20.0" bottom="20.0"/>
-        </padding>
-    </ListView>
+<VBox spacing="10" alignment="TOP_LEFT" xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1">
 
-    <HBox spacing="15" alignment="CENTER">
-        <Button fx:id="cancelButton" onAction="#handleCancel"
-            styleClass="cancel-button" text="Cancelar" />
-    </HBox>
+    <!-- Lista de Playlists -->
+    <Label text="Playlists" styleClass="section-title" />
+    <ListView fx:id="playlistListView" prefHeight="150.0" />
+
+    <!-- Descrição da Playlist -->
+    <Label text="Descrição:" styleClass="section-title" />
+    <Label fx:id="descriptionLabel" wrapText="true" text="Selecione uma playlist para ver os detalhes" />
+
+    <!-- Lista de Músicas -->
+    <Label text="Músicas:" styleClass="section-title" />
+    <ListView fx:id="songsListView" prefHeight="200.0" />
 </VBox>
