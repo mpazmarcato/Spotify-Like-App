@@ -37,12 +37,19 @@
                     </children>
                 </VBox>
 
-                <!-- Seleção de músicas -->
-                <VBox spacing="10" alignment="CENTER_LEFT">
+                <!-- Seção para Músicas -->
+                <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                     <children>
-                        <Label text="Selecione Músicas:" styleClass="playlist-label" />
-                        <ListView fx:id="songsListView" styleClass="playlist-list" />
+                        <Label text="Músicas">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                        <ListView fx:id="songList" onMouseClicked="#handleSongSelection" prefHeight="181.0" prefWidth="864.0" />
                     </children>
+                    <padding>
+                        <Insets top="20.0" />
+                    </padding>
                 </VBox>
 
                 <!-- Botões de ação -->

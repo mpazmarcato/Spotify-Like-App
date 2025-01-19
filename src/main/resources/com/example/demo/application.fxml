@@ -24,7 +24,6 @@
             <children>
                 <Button onAction="#handleProfileButton" styleClass="nav-button" text="Perfil" maxWidth="300.0"/>
                 <Button onAction="#handleLibraryButton" styleClass="nav-button" text="Sua Biblioteca" maxWidth="300.0"/>
-                <Button onAction="#handleCreatePodcast" styleClass="nav-button" text="Criar Podcast" maxWidth="300.0"/>
                 <Button onAction="#handleCreatePlaylist" styleClass="nav-button" text="Criar Playlist" maxWidth="300.0"/>
                 <Button fx:id="addSongButton" styleClass="nav-button" text="Adicionar Música" onAction="#handleAddSongButtonClick" maxWidth="300.0"/>
                 <Button fx:id="deleteSongButton" styleClass="nav-button" text="Deletar Música" onAction="#handleDeleteSongButtonClick" maxWidth="300.0"/>

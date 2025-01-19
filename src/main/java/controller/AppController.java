@@ -1,3 +1,4 @@
+
 package controller;
 
 import exceptions.LoginException;
@@ -45,6 +46,7 @@ import javax.swing.text.html.Option;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.Preferences;
 
 
 public class AppController {
@@ -129,9 +131,6 @@ public class AppController {
 
     @FXML
     private void initialize() {
-        nowPlayingList = new ListView<>();
-        ObservableList<String> items = FXCollections.observableArrayList("Item 1", "Item 2", "Item 3");
-        nowPlayingList.setItems(items);
         loadPlaylists();
 
         if (mediaPlayer != null) {
@@ -160,7 +159,6 @@ public class AppController {
             });
         }
     }
-
 
     @FXML
     private void handleSongSelection() {
@@ -223,12 +221,16 @@ public class AppController {
                             timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
                             mediaPlayer.play();
                             toggleButton.setText("Play/Pause");
-                            updateRecentSongs(currentSong.getName());
 
                             nowPlayingSongs.clear();
                             nowPlayingSongs.add("Now Playing: " + currentSong.getName());
+                            if (nowPlayingList != null) {
+                                nowPlayingList.setItems(nowPlayingSongs);
+                            } else {
+                                System.err.println("nowPlayingList está null! Verifique o FXML.");
+                            }
 
-                            nowPlayingList.setItems(nowPlayingSongs);
+                            updateRecentSongs(currentSong.getName());
                         });
 
                         mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
@@ -256,20 +258,7 @@ public class AppController {
             }
         };
 
-        new Thread(loadSongTask).start(); // Carrega a música em uma thread separada
-    }
-
-    private void updateMusicProgress() {
-        mediaPlayer.currentTimeProperty().addListener(observable -> {
-            if (mediaPlayer != null && !isSliderChanging) {
-                timeSlider.setValue(mediaPlayer.getCurrentTime().toSeconds());
-                double currentTime = mediaPlayer.getCurrentTime().toSeconds();
-                double totalTime = mediaPlayer.getTotalDuration().toSeconds();
-                timeLabel.setText(String.format("%02d:%02d / %02d:%02d",
-                        (int) currentTime / 60, (int) currentTime % 60,
-                        (int) totalTime / 60, (int) totalTime % 60));
-            }
-        });
+        new Thread(loadSongTask).start();
     }
 
     private void updateRecentSongs(String songName) {
@@ -290,7 +279,6 @@ public class AppController {
             for (File file : defaultMusicDir.listFiles()) {
                 if (file.isFile() && isPlayableMedia(file)) {
                     playlist.add(file);
-                    songList.getItems().add(file.getName());
                 }
             }
         }
@@ -313,8 +301,6 @@ public class AppController {
         }
     }
 
-
-
     private boolean isValidMusicFile(File file) {
         String[] validExtensions = {".mp3", ".wav", ".flac"};
         for (String ext : validExtensions) {
@@ -325,7 +311,6 @@ public class AppController {
         return false;
     }
 
-
     @FXML
     private void handleAddSongButtonClick() {
         FileChooser fileChooser = new FileChooser();
@@ -335,16 +320,20 @@ public class AppController {
 
         if (selectedFile != null) {
             if (isValidMusicFile(selectedFile) && isPlayableMedia(selectedFile)) {
-                playlist.add(selectedFile);
-
-                songList.getItems().add(selectedFile.getName());
-
-                showAlert("Música adicionada", "A música foi adicionada à playlist com sucesso.");
+                // Verifica se a música já está na playlist
+                if (!playlist.contains(selectedFile)) {
+                    playlist.add(selectedFile);
+                    songList.getItems().add(selectedFile.getName());
+                    showAlert("Música adicionada", "A música foi adicionada à playlist com sucesso.");
+                } else {
+                    showAlert("Erro", "Essa música já está na playlist.");
+                }
             } else {
                 showAlert("Erro", "O arquivo selecionado não é uma música válida.");
             }
         }
     }
+
 
     @FXML
     private void handleDeleteSongButtonClick() {
@@ -430,13 +419,25 @@ public class AppController {
             dialog.setTitle("Create New Playlist");
             dialog.setHeaderText("Enter playlist details:");
 
-            // Initialize fields if not from FXML
             TextField playlistTitleField = new TextField();
             TextArea playlistDescriptionArea = new TextArea();
 
             ListView<Song> availableSongsListView = new ListView<>();
             availableSongsListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-            List<Song> allSongs = songController.findAllSongs();
+
+            // Adiciona as músicas da songList à lista de músicas disponíveis
+            ObservableList<Song> allSongs = FXCollections.observableArrayList();
+            for (File file : playlist) {
+                // Verifica se o arquivo é válido e cria a instância de Song
+                if (isPlayableMedia(file)) {
+                    Song song = new Song();
+                    song.setTitle(file.getName()); // Você pode ajustar esse método conforme a estrutura de Song
+                    song.setArtist("Unknown Artist"); // Ajuste conforme necessário
+                    allSongs.add(song);
+                }
+            }
+
+            // Preenche a ListView com as músicas disponíveis
             availableSongsListView.getItems().addAll(allSongs);
 
             availableSongsListView.setCellFactory(param -> new ListCell<Song>() {
@@ -448,18 +449,14 @@ public class AppController {
             });
 
             VBox content = new VBox(10);
-            if (playlistTitleField != null && playlistDescriptionArea != null) {
-                content.getChildren().addAll(
-                        new Label("Title:"),
-                        playlistTitleField,
-                        new Label("Description:"),
-                        playlistDescriptionArea,
-                        new Label("Select Songs:"),
-                        availableSongsListView
-                );
-            } else {
-                throw new IllegalStateException("Required UI components are null.");
-            }
+            content.getChildren().addAll(
+                    new Label("Title:"),
+                    playlistTitleField,
+                    new Label("Description:"),
+                    playlistDescriptionArea,
+                    new Label("Select Songs:"),
+                    availableSongsListView
+            );
 
             dialog.getDialogPane().setContent(content);
             dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
@@ -493,20 +490,16 @@ public class AppController {
         } catch (IOException e) {
             logger.error("Error creating playlist: ", e);
             showAlert("Error", "An error occurred while creating the playlist.");
-        } catch (IllegalStateException e) {
-            logger.error("Null UI component: ", e);
-            showAlert("Error", e.getMessage());
         }
     }
+
 
     @FXML
     private void handleCancel(ActionEvent event) {
         try {
-            // Carregar a tela inicial
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/application.fxml"));
             Parent homeScreen = loader.load();
 
-            // Configurar a cena e o palco
             Scene homeScene = new Scene(homeScreen, 800, 600);
             String css = Objects.requireNonNull(getClass().getResource("/com/example/demo/styles.css")).toExternalForm();
             homeScene.getStylesheets().add(css);
@@ -532,11 +525,33 @@ public class AppController {
         }
     }
 
-// olha aq em cima e abaixo
     @FXML
     void handleLibraryButton(ActionEvent event) {
-        System.out.println("Library button clicked!");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/library.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.show();
+
+            ListView<String> playlistListView = (ListView<String>) scene.lookup("#playlistList");
+            ObservableList<String> playlists = FXCollections.observableArrayList();
+
+            List<Playlist> playlistData = playlistController.findAllPlaylists();
+            for (Playlist playlist : playlistData) {
+                playlists.add(playlist.getTitle());  // Add playlist titles to the ListView
+            }
+
+            playlistListView.setItems(playlists);
+
+        } catch (IOException e) {
+            showAlert("Erro", "Não foi possível carregar a biblioteca. Por favor, tente novamente.");
+            logger.error("Erro ao carregar a biblioteca: ", e);
+        }
     }
+
 
     // n sei oq fzr com essa
     @FXML
@@ -559,16 +574,13 @@ public class AppController {
 
     @FXML
     private void handlePreviousSong(ActionEvent event) {
-        // Se a playlist estiver vazia, não tenta retroceder a música
         if (playlist.isEmpty()) {
             System.err.println("A playlist está vazia!");
             return;
         }
 
-        // Retrocede para a música anterior (circular)
         currentSongIndex = (currentSongIndex - 1 + playlist.size()) % playlist.size();
 
-        // Toca a música anterior
         playSong();
     }
 
@@ -592,6 +604,15 @@ public class AppController {
 
     @FXML
     void handleLeaveButton(ActionEvent event) {
+        // Salvar a posição da música e o índice da música
+        if (mediaPlayer != null) {
+            double currentTime = mediaPlayer.getCurrentTime().toSeconds();
+            // Salvar a posição em algum lugar (arquivo, banco de dados, etc.)
+            saveMusicState(currentSongIndex, currentTime);
+
+            mediaPlayer.stop();
+        }
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/Login.fxml"));
             Parent loginScreen = loader.load();
@@ -608,5 +629,13 @@ public class AppController {
             logger.error("Erro ao carregar a tela de perfil: ", e);
         }
     }
+
+    private void saveMusicState(int songIndex, double position) {
+        // Exemplo de como salvar com Preferences
+        Preferences prefs = Preferences.userNodeForPackage(AppController.class);
+        prefs.putInt("currentSongIndex", songIndex);
+        prefs.putDouble("currentSongPosition", position);
+    }
+
 
 }
