@@ -17,6 +17,7 @@ module com.example.demo {
     requires java.naming;
     requires java.sql;
     requires java.desktop;
+    requires java.prefs;
 
     opens com.example.demo to javafx.fxml;
     opens controller to javafx.fxml; // Allow reflection for FXML

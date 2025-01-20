@@ -22,35 +22,13 @@
             </ImageView>
    
                <Button fx:id="changePictureButton" onAction="#handleChangePicture" styleClass="profile-button" text="Alterar Foto" />
-   
-               <!-- Informações do usuário -->
-               <VBox alignment="CENTER_LEFT" spacing="10" styleClass="profile-info">
-                   <children>
-                       <HBox spacing="10">
-                          <children>
-                              <Label styleClass="profile-label" text="Nome:" />
-                              <Label fx:id="nameLabel" styleClass="profile-value" text="-" />
-                          </children>
-                       </HBox>
-                       <HBox spacing="10">
-                          <children>
-                              <Label styleClass="profile-label" text="E-mail:" />
-                              <Label fx:id="emailLabel" styleClass="profile-value" text="-" />
-                          </children>
-                       </HBox>
-                       <HBox spacing="10">
-                          <children>
-                              <Label styleClass="profile-label" text="Usuário:" />
-                              <Label fx:id="usernameLabel" styleClass="profile-value" text="-" />
-                          </children>
-                       </HBox>
-                   </children>
-               </VBox>
-   
+
+               <Label fx:id="nameLabel" style="-fx-text-fill: black;" text="-" />
+               <Label fx:id="emailLabel" style="-fx-text-fill: black;" text="-" />
+
                <!-- Botões de ação -->
                <VBox alignment="CENTER" spacing="15">
       <children>
-                      <Button fx:id="editProfileButton" onAction="#handleEditProfile" styleClass="profile-button" text="Editar Perfil" />
                       <Button fx:id="logoutButton" onAction="#handleLogout" styleClass="logout-button" text="Sair" />
       </children>
                </VBox>

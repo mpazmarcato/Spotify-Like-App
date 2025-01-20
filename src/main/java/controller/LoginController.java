@@ -60,7 +60,7 @@ public class LoginController {
 
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
-                User loggedInUser = UserSession.getLoggedInUser(); // Obtém o usuário logado
+                UserSession.setLoggedInUser(user);// Obtém o usuário logado
                 user.setLogged(true);
                 Optional<User> userLogged = userController.updateUser(user);
                 if(userLogged.isPresent()){
@@ -92,14 +92,12 @@ public class LoginController {
 
     @FXML
     public void handleRegisterSwitch() {
-        // Alterna para a tela de registro
         loginPane.setVisible(false);
         registerPane.setVisible(true);
     }
 
     @FXML
     public void handleBackToLogin() {
-        // Alterna de volta para a tela de login
         registerPane.setVisible(false);
         loginPane.setVisible(true);
     }

@@ -8,23 +8,12 @@
 <?import javafx.scene.text.*?>
 
 <BorderPane prefHeight="696.0" prefWidth="1064.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AppController">
-    <!-- Top Section -->
-    <top>
-        <HBox alignment="CENTER" prefHeight="33.0" prefWidth="580.0" spacing="10" BorderPane.alignment="CENTER">
-            <children>
-                <TextField fx:id="searchField" prefHeight="25.0" prefWidth="248.0" promptText="Pesquise por playlists, músicas ou podcasts" />
-                <Button fx:id="searchButton" onAction="#handleSearchButtonClick" styleClass="nav-button" text="Buscar" />
-            </children>
-        </HBox>
-    </top>
-
     <!-- Left Sidebar -->
     <left>
         <VBox prefWidth="300.0" spacing="10" styleClass="sidebar" alignment="CENTER">
             <children>
                 <Button onAction="#handleProfileButton" styleClass="nav-button" text="Perfil" maxWidth="300.0"/>
                 <Button onAction="#handleLibraryButton" styleClass="nav-button" text="Sua Biblioteca" maxWidth="300.0"/>
-                <Button onAction="#handleCreatePodcast" styleClass="nav-button" text="Criar Podcast" maxWidth="300.0"/>
                 <Button onAction="#handleCreatePlaylist" styleClass="nav-button" text="Criar Playlist" maxWidth="300.0"/>
                 <Button fx:id="addSongButton" styleClass="nav-button" text="Adicionar Música" onAction="#handleAddSongButtonClick" maxWidth="300.0"/>
                 <Button fx:id="deleteSongButton" styleClass="nav-button" text="Deletar Música" onAction="#handleDeleteSongButtonClick" maxWidth="300.0"/>

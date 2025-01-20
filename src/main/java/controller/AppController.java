@@ -14,20 +14,22 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.*;
+import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.*;
 import repositories.*;
 import util.UserSession;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -40,9 +42,12 @@ import javafx.util.Duration;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
+import javax.swing.text.html.Option;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.Preferences;
+import java.util.stream.Collectors;
 
 
 public class AppController {
@@ -58,11 +63,16 @@ public class AppController {
     private final SongService songService = new SongService(songRepository);
     private final SongController songController = new SongController(songService);
 
+    private static final Logger logger = LoggerFactory.getLogger(AppController.class);
+
     @FXML
     public Button addSongButton;
 
     @FXML
     public Button deleteSongButton;
+
+    @FXML
+    public ListView playlistListView;
 
     @FXML
     private TextField searchField;
@@ -95,6 +105,9 @@ public class AppController {
     private Button toggleButton;
 
     @FXML
+    private Button backButton;
+
+    @FXML
     private Label timeLabel;
 
     @FXML
@@ -109,6 +122,18 @@ public class AppController {
     @FXML
     private Label contentLabel;
 
+    @FXML
+    private TextField playlistTitleField;
+
+    @FXML
+    private TextArea playlistDescriptionArea;
+
+    private Stage primaryStage;  // A janela principal da aplicação
+
+    public void setPrimaryStage(Stage stage) {
+        this.primaryStage = stage;
+    }
+
     private final ObservableList<String> nowPlayingSongs = FXCollections.observableArrayList();
 
 
@@ -119,9 +144,13 @@ public class AppController {
 
     @FXML
     private void initialize() {
-        nowPlayingList = new ListView<>();
-        ObservableList<String> items = FXCollections.observableArrayList("Item 1", "Item 2", "Item 3");
-        nowPlayingList.setItems(items);
+        if (playlistList == null) {
+            System.out.println("playlistList is null. Check FXML and controller bindings.");
+        } else {
+            System.out.println("playlistList initialized successfully.");
+            updatePlaylistDisplay();
+        }
+
         loadPlaylists();
 
         if (mediaPlayer != null) {
@@ -150,7 +179,6 @@ public class AppController {
             });
         }
     }
-
 
     @FXML
     private void handleSongSelection() {
@@ -213,12 +241,16 @@ public class AppController {
                             timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
                             mediaPlayer.play();
                             toggleButton.setText("Play/Pause");
-                            updateRecentSongs(currentSong.getName());
 
                             nowPlayingSongs.clear();
                             nowPlayingSongs.add("Now Playing: " + currentSong.getName());
+                            if (nowPlayingList != null) {
+                                nowPlayingList.setItems(nowPlayingSongs);
+                            } else {
+                                System.err.println("nowPlayingList está null! Verifique o FXML.");
+                            }
 
-                            nowPlayingList.setItems(nowPlayingSongs);
+                            updateRecentSongs(currentSong.getName());
                         });
 
                         mediaPlayer.currentTimeProperty().addListener((observable, oldValue, newValue) -> {
@@ -246,20 +278,7 @@ public class AppController {
             }
         };
 
-        new Thread(loadSongTask).start(); // Carrega a música em uma thread separada
-    }
-
-    private void updateMusicProgress() {
-        mediaPlayer.currentTimeProperty().addListener(observable -> {
-            if (mediaPlayer != null && !isSliderChanging) {
-                timeSlider.setValue(mediaPlayer.getCurrentTime().toSeconds());
-                double currentTime = mediaPlayer.getCurrentTime().toSeconds();
-                double totalTime = mediaPlayer.getTotalDuration().toSeconds();
-                timeLabel.setText(String.format("%02d:%02d / %02d:%02d",
-                        (int) currentTime / 60, (int) currentTime % 60,
-                        (int) totalTime / 60, (int) totalTime % 60));
-            }
-        });
+        new Thread(loadSongTask).start();
     }
 
     private void updateRecentSongs(String songName) {
@@ -280,7 +299,6 @@ public class AppController {
             for (File file : defaultMusicDir.listFiles()) {
                 if (file.isFile() && isPlayableMedia(file)) {
                     playlist.add(file);
-                    songList.getItems().add(file.getName());
                 }
             }
         }
@@ -303,8 +321,6 @@ public class AppController {
         }
     }
 
-
-
     private boolean isValidMusicFile(File file) {
         String[] validExtensions = {".mp3", ".wav", ".flac"};
         for (String ext : validExtensions) {
@@ -315,7 +331,6 @@ public class AppController {
         return false;
     }
 
-
     @FXML
     private void handleAddSongButtonClick() {
         FileChooser fileChooser = new FileChooser();
@@ -325,11 +340,14 @@ public class AppController {
 
         if (selectedFile != null) {
             if (isValidMusicFile(selectedFile) && isPlayableMedia(selectedFile)) {
-                playlist.add(selectedFile);
-
-                songList.getItems().add(selectedFile.getName());
-
-                showAlert("Música adicionada", "A música foi adicionada à playlist com sucesso.");
+                // Verifica se a música já está na playlist
+                if (!playlist.contains(selectedFile)) {
+                    playlist.add(selectedFile);
+                    songList.getItems().add(selectedFile.getName()); // Aqui, você adiciona o nome da música, não o objeto File
+                    showAlert("Música adicionada", "A música foi adicionada à playlist com sucesso.");
+                } else {
+                    showAlert("Erro", "Essa música já está na playlist.");
+                }
             } else {
                 showAlert("Erro", "O arquivo selecionado não é uma música válida.");
             }
@@ -362,13 +380,12 @@ public class AppController {
 
             if (songToDelete != null) {
                 playlist.remove(songToDelete);
-
-                songList.getItems().remove(selectedSongName);
-
+                songList.getItems().remove(selectedSongName); // Aqui, remove o nome da música
                 showAlert("Música excluída", "A música foi excluída com sucesso.");
             }
         }
     }
+
 
     private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -379,63 +396,197 @@ public class AppController {
     }
 
     @FXML
-    private void handleSearchButtonClick() {
-        String searchQuery = searchField.getText();
-        if (searchQuery != null && !searchQuery.isEmpty()) {
-            if (searchQuery.contains("playlist")) {
-                searchPlaylists();
-            } else if (searchQuery.contains("song")) {
-                searchSongs();
-            } else if (searchQuery.contains("podcast")) {
-                searchPodcasts(searchQuery);
-            } else {
-                contentLabel.setText("Tipo de busca não identificado.");
-            }
-        } else {
-            contentLabel.setText("Por favor, insira uma busca.");
-        }
-    }
-
-    private void searchPlaylists() {
-        contentLabel.setText("Buscando playlists...");
-        playlistController.findAllPlaylists();
-    }
-
-    private void searchSongs() {
-        contentLabel.setText("Buscando músicas...");
-        songController.findAllSongs();
-    }
-
-    private void searchPodcasts(String query) {
-        contentLabel.setText("Buscando podcasts...");
-    }
-
-    @FXML
-    private void handleCreatePlaylist(ActionEvent event) { // aqui tem q editar/chamar/criar as funções para salvar o nome da playlist e salvar na aba Sua Biblioteca
+    private void handleCreatePlaylist(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/create_playlist.fxml"));
-            Parent root = loader.load(); // Carrega a tela de criar playlist
+            Parent root = loader.load();
 
-            Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle("Create New Playlist");
+            dialog.setHeaderText("Enter playlist details:");
+
+            TextField playlistTitleField = new TextField();
+            TextArea playlistDescriptionArea = new TextArea();
+
+            ListView<Song> availableSongsListView = new ListView<>();
+            availableSongsListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+            // Adiciona as músicas disponíveis à lista
+            ObservableList<Song> allSongs = FXCollections.observableArrayList();
+            for (File file : playlist) {
+                if (isPlayableMedia(file)) {
+                    Song song = new Song();
+                    song.setTitle(file.getName()); // Adicionando o nome do arquivo como título
+                    song.setArtist("Unknown Artist"); // Ajuste conforme necessário
+                    allSongs.add(song);
+                }
+            }
+
+            availableSongsListView.setItems(allSongs);
+
+            availableSongsListView.setCellFactory(param -> new ListCell<Song>() {
+                @Override
+                protected void updateItem(Song song, boolean empty) {
+                    super.updateItem(song, empty);
+                    setText((empty || song == null) ? null : song.getTitle() + " - " + song.getArtist());
+                }
+            });
+
+            VBox content = new VBox(10);
+            content.getChildren().addAll(
+                    new Label("Title:"),
+                    playlistTitleField,
+                    new Label("Description:"),
+                    playlistDescriptionArea,
+                    new Label("Select Songs:"),
+                    availableSongsListView
+            );
+
+            dialog.getDialogPane().setContent(content);
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+            Optional<ButtonType> result = dialog.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                String title = playlistTitleField.getText();
+                String description = playlistDescriptionArea.getText();
+
+                if (title == null || title.trim().isEmpty()) {
+                    showAlert("Error", "Please enter a playlist title.");
+                    return;
+                }
+
+                Playlist newPlaylist = new Playlist();
+                newPlaylist.setTitle(title);
+                newPlaylist.setDescription(description);
+
+                // Adiciona músicas selecionadas à nova playlist
+                List<Song> selectedSongs = availableSongsListView.getSelectionModel().getSelectedItems();
+                newPlaylist.getSongs().addAll(selectedSongs);
+
+                // Salva a playlist
+                Optional<Playlist> savedPlaylist = playlistController.savePlaylist(newPlaylist);
+                if (savedPlaylist.isPresent()) {
+                    updatePlaylistDisplay();
+                    showAlert("Success", "Playlist created successfully with " + selectedSongs.size() + " songs!");
+                } else {
+                    showAlert("Error", "Failed to create playlist. Please try again.");
+                }
+
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error creating playlist: ", e);
+            showAlert("Error", "An error occurred while creating the playlist.");
         }
     }
 
-// olha aq em cima e abaixo
+
+
+
     @FXML
-    void handleLibraryButton(ActionEvent event) {
-        System.out.println("Library button clicked!");
+    private void handleCancel(ActionEvent event) {
+        try {
+            // Carrega a próxima tela a partir do arquivo FXML
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/application.fxml"));
+            Parent root = loader.load();
+
+            // Obtém o Stage a partir do evento
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            // Configura a nova cena no Stage existente
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            logger.error("Erro ao carregar a tela principal: ", e);
+            showAlert("Erro", "Não foi possível carregar a tela principal. Por favor, tente novamente.");
+        }
     }
 
-    // n sei oq fzr com essa
-    @FXML
-    void handleCreatePodcast(ActionEvent event) {
-        System.out.println("Create Podcast button clicked!");
+    private void updatePlaylistDisplay() {
+        if (playlistList == null) {
+            System.err.println("playlistList is null. Check FXML bindings.");
+            return;
+        }
+
+        playlistList.getItems().clear(); // Limpa os itens existentes
+        List<Playlist> playlists = playlistController.findAllPlaylists(); // Obtém todas as playlists
+        if (playlists == null) {
+            System.err.println("playlists are null. Check the data source.");
+            return;
+        }
+
+        for (Playlist playlist : playlists) {
+            String displayText = playlist.getTitle() + " (" + playlist.getSongs().size() + " songs)";
+            playlistList.getItems().add(displayText); // Adiciona playlists à ListView
+        }
     }
+
+    @FXML
+    private void handleLibraryButton(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/library.fxml"));
+            Parent root = loader.load();
+
+            Stage libraryStage = new Stage();
+            libraryStage.setTitle("Your Playlists");
+            libraryStage.setScene(new Scene(root, 600, 400));
+            libraryStage.show();
+
+            ListView<Playlist> playlistListView = (ListView<Playlist>) root.lookup("#playlistListView");
+            Label descriptionLabel = (Label) root.lookup("#descriptionLabel");
+            ListView<String> songsListView = (ListView<String>) root.lookup("#songsListView");
+
+            // Obtém as playlists criadas
+            ObservableList<Playlist> playlists = FXCollections.observableArrayList(playlistController.findAllPlaylists());
+
+            playlistListView.setItems(playlists);
+
+            // Configura o ListView de playlists
+            playlistListView.setCellFactory(param -> new ListCell<Playlist>() {
+                @Override
+                protected void updateItem(Playlist playlist, boolean empty) {
+                    super.updateItem(playlist, empty);
+                    setText((empty || playlist == null) ? null : playlist.getTitle());
+                }
+            });
+
+            // Listener para exibir descrição e músicas da playlist selecionada
+            playlistListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+                if (newSelection != null) {
+                    descriptionLabel.setText(newSelection.getDescription());
+
+                    // Aqui você já tem as músicas adicionadas à playlist, então basta extrair os títulos
+                    List<String> songTitles = new ArrayList<>();
+                    for (Song song : newSelection.getSongs()) {
+                        songTitles.add(song.getTitle()); // Adiciona o título da música à lista
+                    }
+
+                    // Atualiza a ListView de músicas
+                    songsListView.setItems(FXCollections.observableArrayList(songTitles));
+                } else {
+                    descriptionLabel.setText("");
+                    songsListView.setItems(FXCollections.observableArrayList());
+                }
+            });
+
+
+        } catch (IOException e) {
+            logger.error("Error opening Library: ", e);
+            showAlert("Error", "An error occurred while opening the Library.");
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
     @FXML
     void handleTogglePlayPause(ActionEvent event) {
@@ -452,16 +603,13 @@ public class AppController {
 
     @FXML
     private void handlePreviousSong(ActionEvent event) {
-        // Se a playlist estiver vazia, não tenta retroceder a música
         if (playlist.isEmpty()) {
             System.err.println("A playlist está vazia!");
             return;
         }
 
-        // Retrocede para a música anterior (circular)
         currentSongIndex = (currentSongIndex - 1 + playlist.size()) % playlist.size();
 
-        // Toca a música anterior
         playSong();
     }
 
@@ -478,18 +626,28 @@ public class AppController {
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace(); // Tratar exceções caso o arquivo FXML não seja encontrado ou haja outro erro
+            showAlert("Erro", "Não foi possível carregar a tela de perfil. Por favor, tente novamente.");
+            logger.error("Erro ao carregar a tela de perfil: ", e);
         }
     }
 
     @FXML
     void handleLeaveButton(ActionEvent event) {
+        // Salvar a posição da música e o índice da música
+        if (mediaPlayer != null) {
+            double currentTime = mediaPlayer.getCurrentTime().toSeconds();
+            // Salvar a posição em algum lugar (arquivo, banco de dados, etc.)
+            saveMusicState(currentSongIndex, currentTime);
+
+            mediaPlayer.stop();
+        }
+
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/Login.fxml"));
             Parent loginScreen = loader.load();
 
             Scene loginScene = new Scene(loginScreen, 800, 600);
-            String css = getClass().getResource("/com/example/demo/styles.css").toExternalForm();
+            String css = Objects.requireNonNull(getClass().getResource("/com/example/demo/styles.css")).toExternalForm();
             loginScene.getStylesheets().add(css);
 
             Stage stage = (Stage) leaveButton.getScene().getWindow();
@@ -497,8 +655,15 @@ public class AppController {
             stage.setTitle("Spotify Application");
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Erro ao carregar a tela de perfil: ", e);
         }
+    }
+
+    private void saveMusicState(int songIndex, double position) {
+        // Exemplo de como salvar com Preferences
+        Preferences prefs = Preferences.userNodeForPackage(AppController.class);
+        prefs.putInt("currentSongIndex", songIndex);
+        prefs.putDouble("currentSongPosition", position);
     }
 
 }

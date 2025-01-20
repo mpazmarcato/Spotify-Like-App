@@ -1,23 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.image.*?>
-<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
-<?import javafx.geometry.Pos?>
+<?import javafx.geometry.*?>
 
-<StackPane prefHeight="696.0" prefWidth="1064.0" stylesheets="@styles.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.AppController">
-
+<AnchorPane prefHeight="696.0" prefWidth="1064.0" stylesheets="@styles.css"
+            xmlns="http://javafx.com/javafx/8"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.AppController">
     <children>
-        <!-- Tela de Criar Nova Playlist -->
-        <VBox fx:id="createPlaylistPane" alignment="CENTER" spacing="20" styleClass="playlist-container" visible="true">
+        <!-- Container principal -->
+        <VBox alignment="TOP_LEFT" spacing="15" styleClass="playlist-container"
+              AnchorPane.bottomAnchor="50.0"
+              AnchorPane.leftAnchor="50.0"
+              AnchorPane.rightAnchor="50.0"
+              AnchorPane.topAnchor="50.0">
             <children>
-                <Text styleClass="playlist-title" text="Criar Nova Playlist" />
-                <TextField fx:id="playlistNameField" promptText="Nome da Playlist" styleClass="playlist-field" />
-                <Button fx:id="createPlaylistButton" onAction="#handleCreatePlaylist" styleClass="playlist-button" text="Criar Playlist" />
-                <Text styleClass="feedback-text" fx:id="feedbackLabel" />
+                <!-- Título da tela -->
+                <Label text="Criar Nova Playlist" styleClass="playlist-title" />
+
+                <!-- Campo para nome da playlist -->
+                <VBox spacing="10" alignment="CENTER_LEFT">
+                    <children>
+                        <Label text="Nome da Playlist:" styleClass="playlist-label" />
+                        <TextField fx:id="playlistNameField" promptText="Digite o nome da playlist"
+                                   styleClass="playlist-field" />
+                    </children>
+                </VBox>
+
+                <!-- Descrição da playlist -->
+                <VBox spacing="10" alignment="CENTER_LEFT">
+                    <children>
+                        <Label text="Descrição:" styleClass="playlist-label" />
+                        <TextArea fx:id="playlistDescriptionField" promptText="Adicione uma descrição (opcional)"
+                                  styleClass="playlist-area" />
+                    </children>
+                </VBox>
+
+                <!-- Seção para Músicas -->
+                <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+                    <children>
+                        <Label text="Músicas">
+                            <font>
+                                <Font size="16.0" />
+                            </font>
+                        </Label>
+                        <ListView fx:id="songList" onMouseClicked="#handleSongSelection" prefHeight="181.0" prefWidth="864.0" />
+                    </children>
+                    <padding>
+                        <Insets top="20.0" />
+                    </padding>
+                </VBox>
+
+                <!-- Botões de ação -->
+                <HBox spacing="15" alignment="CENTER">
+                    <children>
+                        <Button fx:id="createPlaylistButton" onAction="#handleCreatePlaylist"
+                                styleClass="playlist-button" text="Criar" />
+                        <Button fx:id="cancelButton" onAction="#handleCancel"
+                                styleClass="cancel-button" text="Cancelar" />
+                    </children>
+                </HBox>
             </children>
         </VBox>
     </children>
-
-</StackPane>
+</AnchorPane>
