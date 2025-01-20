@@ -27,9 +27,9 @@ public class LoginController {
     private final UserController userController = new UserController(userService);
 
     @FXML
-    private Pane loginPane;
+    private Pane loginPane; // Painel para a tela de login
     @FXML
-    private Pane registerPane;
+    private Pane registerPane; // Painel para a tela de registro
     @FXML
     private TextField usernameField;
     @FXML
@@ -60,7 +60,7 @@ public class LoginController {
 
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
-                User loggedInUser = UserSession.getLoggedInUser(); // Obtém o usuário logado
+                UserSession.setLoggedInUser(user);// Obtém o usuário logado
                 user.setLogged(true);
                 Optional<User> userLogged = userController.updateUser(user);
                 if(userLogged.isPresent()){

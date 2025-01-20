@@ -202,6 +202,10 @@
     -fx-cursor: hand;
 }
 
+.profile-value {
+    -fx-text-fill: black; /* Define a cor do texto como preta */
+}
+
 .profile-button:hover {
     -fx-background-color: #005a9e;
 }
@@ -227,11 +231,6 @@
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-text-fill: #555555;
-}
-
-.profile-value {
-    -fx-font-size: 14px;
-    -fx-text-fill: #333333;
 }
 
 /* Informações do usuário */
