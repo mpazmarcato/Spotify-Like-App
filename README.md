@@ -421,3 +421,16 @@ O desenvolvimento do SpotifyLikeApp foi realizado de forma colaborativa, com uma
   -  Criação dos layouts com arquivos FXML para oferecer uma experiência de usuário intuitiva e atraente.
   - Implementação dos controllers para capturar interações do usuário, como carregar músicas e gerenciar playlists.
   - Estilização e ajustes visuais para garantir uma apresentação consistente e agradável.
+
+
+### Ambiente computacional
+- Computador: Genérico
+- Processador: AMD Ryzen 5 7600X 6-Core Processor
+- RAM: 16GB
+- Editor de Texto: Visual Studio Code
+- IDE: nenhuma
+- Sistema Operacional: Windows 11 Pro versão 24H2
+
+Portanto, para a melhor execuçaõ, execute no sistema operacional Windows.
+
+

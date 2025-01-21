@@ -67,21 +67,6 @@ public class ProfileController {
         }
     }
 
-    @FXML
-    private void handleLogout() {
-        try {
-            // Load the next screen (MainScreen.fxml)
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/application.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) nameLabel.getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

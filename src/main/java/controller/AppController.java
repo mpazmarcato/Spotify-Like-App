@@ -17,8 +17,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
+import javafx.stage.*;
 import model.*;
 import org.hibernate.Hibernate;
 import org.slf4j.Logger;
@@ -35,9 +34,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import javafx.stage.Window;
 import javafx.util.Duration;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -618,13 +615,22 @@ public class AppController {
     @FXML
     void handleProfileButton(ActionEvent event) {
         try {
+            // Carrega o conteúdo do FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/demo/profile.fxml"));
-            Parent root = loader.load(); // Carrega o conteúdo do FXML
+            Parent root = loader.load();
 
+            // Cria uma nova cena e uma nova janela (Stage) para o pop-out
             Scene scene = new Scene(root);
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(scene);
-            stage.show();
+            Stage popoutStage = new Stage();
+            popoutStage.setScene(scene);
+
+            // Definir propriedades da janela pop-out (opcional)
+            popoutStage.setTitle("Perfil");
+            popoutStage.setResizable(false); // Ou true se você quiser que a janela seja redimensionável
+            popoutStage.initModality(Modality.APPLICATION_MODAL); // Garante que a janela pop-out seja modal
+
+            // Exibe a janela pop-out
+            popoutStage.show();
         } catch (IOException e) {
             showAlert("Erro", "Não foi possível carregar a tela de perfil. Por favor, tente novamente.");
             logger.error("Erro ao carregar a tela de perfil: ", e);

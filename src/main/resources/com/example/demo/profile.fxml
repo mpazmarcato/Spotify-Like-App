@@ -26,12 +26,7 @@
                <Label fx:id="nameLabel" style="-fx-text-fill: black;" text="-" />
                <Label fx:id="emailLabel" style="-fx-text-fill: black;" text="-" />
 
-               <!-- Botões de ação -->
-               <VBox alignment="CENTER" spacing="15">
-      <children>
-                      <Button fx:id="logoutButton" onAction="#handleLogout" styleClass="logout-button" text="Sair" />
-      </children>
-               </VBox>
+
            </children>
        </VBox>
    </children>
