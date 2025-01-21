@@ -21,6 +21,240 @@ SpotifyLikeApp/
 └── README.md                          # Documentação do projeto
 ```
 
+### Diagrama UML
+
+```mermaid
+classDiagram
+    class Content {
+        <<abstract>>
+        -Integer id
+        -String title
+        -List~String~ contributors
+        -Integer duration
+        -String description
+        +getId()
+        +setId()
+        +getTitle()
+        +setTitle()
+        +getContributors()
+        +getDuration()
+        +setDuration()
+        +getDescription()
+        +setDescription()
+    }
+
+    class Album {
+        -List~Song~ songs
+        -User artist
+        +getSongs()
+        +getArtist()
+        +setArtist()
+        +addSong()
+        +removeSong()
+    }
+
+    class Playlist {
+        -List~Song~ songs
+        -User user
+        +getSongs()
+        +getUser()
+        +setUser()
+        +addSong()
+        +removeSong()
+    }
+
+    class Song {
+        -Integer id
+        -String title
+        -String genre
+        -String artist
+        -String album
+        -Integer duration
+        -Date releaseYear
+        -SongType type
+        +getId()
+        +setId()
+        +getTitle()
+        +setTitle()
+        +getGenre()
+        +setGenre()
+        +getArtist()
+        +setArtist()
+        +getDuration()
+        +setDuration()
+    }
+
+    class User {
+        -Integer userID
+        -String username
+        -String password
+        -String email
+        -String profilePicture
+        -List~UserType~ usersType
+        -List~Playlist~ playlists
+        -List~Album~ albums
+        +getUserID()
+        +setUserID()
+        +getUsername()
+        +setUsername()
+        +getEmail()
+        +setEmail()
+        +getPlaylists()
+        +getAlbums()
+        +addPlaylist()
+        +removePlaylist()
+        +addAlbum()
+        +removeAlbum()
+    }
+
+    %% Repositories
+    class UserRepository {
+        +save(User user)
+        +findById(Integer id)
+        +findAll()
+        +delete(User user)
+    }
+
+    class PlaylistRepository {
+        +save(Playlist playlist)
+        +findById(Integer id)
+        +findAll()
+        +delete(Playlist playlist)
+    }
+
+    class AlbumRepository {
+        +save(Album album)
+        +findById(Integer id)
+        +findAll()
+        +delete(Album album)
+    }
+
+    class SongRepository {
+        +save(Song song)
+        +findById(Integer id)
+        +findAll()
+        +delete(Song song)
+    }
+
+    %% Services
+    class UserService {
+        -UserRepository repository
+        +save(User user)
+        +findById(Integer id)
+        +findAll()
+        +delete(User user)
+    }
+
+    class PlaylistService {
+        -PlaylistRepository repository
+        +save(Playlist playlist)
+        +findById(Integer id)
+        +findAll()
+        +delete(Playlist playlist)
+    }
+
+    class AlbumService {
+        -AlbumRepository repository
+        +save(Album album)
+        +findById(Integer id)
+        +findAll()
+        +delete(Album album)
+    }
+
+    class SongService {
+        -SongRepository repository
+        +save(Song song)
+        +findById(Integer id)
+        +findAll()
+        +delete(Song song)
+    }
+
+    %% Controllers
+    class UserController {
+        -UserService service
+        +create(User user)
+        +update(User user)
+        +delete(Integer id)
+        +findById(Integer id)
+        +findAll()
+    }
+
+    class PlaylistController {
+        -PlaylistService service
+        +create(Playlist playlist)
+        +update(Playlist playlist)
+        +delete(Integer id)
+        +findById(Integer id)
+        +findAll()
+    }
+
+    class AlbumController {
+        -AlbumService service
+        +create(Album album)
+        +update(Album album)
+        +delete(Integer id)
+        +findById(Integer id)
+        +findAll()
+    }
+
+    class SongController {
+        -SongService service
+        +create(Song song)
+        +update(Song song)
+        +delete(Integer id)
+        +findById(Integer id)
+        +findAll()
+    }
+
+    %% Relationships
+    Content <|-- Album
+    Content <|-- Playlist
+    Album "1" *-- "many" Song
+    Playlist "1" *-- "many" Song
+    User "1" *-- "many" Playlist
+    User "1" *-- "many" Album
+
+    UserController --> UserService
+    UserService --> UserRepository
+    PlaylistController --> PlaylistService
+    PlaylistService --> PlaylistRepository
+    AlbumController --> AlbumService
+    AlbumService --> AlbumRepository
+    SongController --> SongService
+    SongService --> SongRepository
+```
+
+### Casos de uso:
+
+```mermaid
+sequenceDiagram
+    participant U as Usuario
+    participant AC as AppController
+    participant MP as MediaPlayer
+    participant PS as PlaylistService
+    participant DB as Database
+
+    U->>AC: Seleciona música
+    AC->>PS: Busca informações da música
+    PS->>DB: Query
+    DB-->>PS: Retorna dados
+    PS-->>AC: Retorna informações
+    AC->>MP: Inicia reprodução
+    MP-->>AC: Confirma início
+    AC-->>U: Atualiza interface
+    
+    loop Durante reprodução
+        MP->>AC: Atualiza tempo
+        AC-->>U: Atualiza slider
+    end
+
+    U->>AC: Pausa música
+    AC->>MP: Pausa reprodução
+    MP-->>AC: Confirma pausa
+    AC-->>U: Atualiza interface
+```
+
+
 ### Projetos
 
 O projeto foi desenvolvido em Java com a utilização do JavaFX para a interface gráfica. Implementado no padrão de projeto
