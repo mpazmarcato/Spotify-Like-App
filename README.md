@@ -433,4 +433,7 @@ O desenvolvimento do SpotifyLikeApp foi realizado de forma colaborativa, com uma
 
 Portanto, para a melhor execuçaõ, execute no sistema operacional Windows.
 
+### Link para o video
+https://drive.google.com/file/d/1bEUa0tTiksLQlKgpglvqzFSlq8R8rzhG/view
+
 
